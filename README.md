@@ -2,7 +2,7 @@
 
 Colección de plugins y herramientas para **QGIS** desarrollados por [angellrnzo](https://github.com/angellrnzo).
 
-Cada plugin es una **carpeta sin comprimir** en la raíz del repo. Los `.zip` de prueba se generan con timestamp en `dist/` (ignorado por git) listos para *Plugins → Install from ZIP* en QGIS.
+Cada plugin es una **carpeta sin comprimir** en la raíz del repo. Los `.zip` de prueba se generan en `dist/` (ignorado por git) listos para *Plugins → Install from ZIP* en QGIS (el zip incluye la carpeta del plugin como raíz).
 
 ---
 

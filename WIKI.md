@@ -148,7 +148,7 @@ powershell -File ..\Tools\package-plugin.ps1 -PluginName "ExportadorRedes_Beta"
 ..\Tools\package-plugin.bat
 ```
 
-**Salida:** `al_qgis_plugins/dist/<Plugin>-v<X.Y.Z>.zip` — el script lee `version=` de `metadata.txt` y lo coloca **al final** del nombre (sin timestamp; se sobrescribe al regenerar la misma versión). El zip contiene el **contenido** de la carpeta (sin la carpeta padre), que es lo que QGIS espera al instalar desde ZIP.
+**Salida:** `al_qgis_plugins/dist/<Plugin>-v<X.Y.Z>.zip` — el script lee `version=` de `metadata.txt` y lo coloca **al final** del nombre (sin timestamp; se sobrescribe al regenerar la misma versión). El zip contiene la **carpeta del plugin como raíz** (`<Plugin>/metadata.txt`, …) — QGIS la exige para *Install from ZIP*; un zip con archivos sueltos en raíz falla con "No root folder was found inside".
 
 **Convención de versionado:**
 1. Subir `version=` en `metadata.txt` + constante `VERSION` en el código de entrada.
@@ -165,6 +165,7 @@ powershell -File ..\Tools\package-plugin.ps1 -PluginName "ExportadorRedes_Beta"
 | Problema | Causa | Solución |
 | :--- | :--- | :--- |
 | Plugin no aparece en QGIS | `metadata.txt` mal formado o `__init__.py` sin `classFactory()` | Validar con *Plugins → Show Python Error Log*; revisar encoding UTF-8 |
+| "No root folder was found inside" al instalar ZIP | El zip tiene los archivos sueltos en raíz (empaquetado antiguo) | Regenerar con `Tools\package-plugin.ps1` actualizado — el zip debe contener la carpeta `<Plugin>/` como raíz |
 | Error de rutas `F:\Tarragona` | Paths hardcodeados en `exportador_plugin.py` | Ajustar `STYLES_WS`/`STYLES_UD` o crear la estructura de carpetas esperada |
 | Logos municipales no cargan | Falta `logos_municipios/` dentro del plugin | Está incluido en el repo; si se instaló desde ZIP antiguo, regenerar el paquete |
 | `.zip` muy grande (>100MB) | Assets sin comprimir dentro del plugin | Consolidar assets en `.zip` interno o usar Git LFS |
