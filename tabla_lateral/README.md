@@ -17,10 +17,12 @@ Plugin minimalista que abre la **tabla de atributos** de la capa vectorial activ
 ## Instalación
 
 **Opción A — Desde ZIP:**
+
 1. Genera el paquete con `Tools\package-plugin.bat` del Workspace (o comprime la carpeta manualmente). El zip se nombra `tabla_lateral-v1.4.zip`.
 2. En QGIS: **Plugins → Manage and Install Plugins → Install from ZIP**.
 
 **Opción B — Manual:**
+
 1. Copia `tabla_lateral\` a `%APPDATA%\QGIS\QGIS3\profiles\default\python\plugins\`.
 2. Reinicia QGIS y activa **Tabla Lateral** en *Manage and Install Plugins → Installed*.
 

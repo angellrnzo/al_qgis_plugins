@@ -81,6 +81,7 @@ Scripts de utilidad para descargar y organizar escudos municipales de la provinc
 | `limpiar_todo.py` | Limpieza de archivos temporales |
 
 **Assets:** `logos_tarragona_assets.zip` contiene 4 colecciones:
+
 - `logos_municipios/` — 250 escudos raw descargados
 - `logos_finales/` — 82 escudos procesados finales
 - `logos_faltantes/` — 17 municipios que faltaban (ya resueltos)

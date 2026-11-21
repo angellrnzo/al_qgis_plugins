@@ -27,10 +27,10 @@ Plugin QGIS que prepara el proyecto, genera cuadrículas de recortes, aplica est
 
 C:\Users<usuario>\AppData\Roaming\QGIS\QGIS3\profiles\default\python\plugins\
 
-2. Cierra QGIS por completo (verifica que no quede `qgis-bin.exe` en el Administrador de tareas).
-3. Abre QGIS.
-4. Ve a **Complementos → Administrar e instalar complementos → Instalados**.
-5. Activa **"Exportador de Redes Pro (Beta 0.17.51)"**.
+1. Cierra QGIS por completo (verifica que no quede `qgis-bin.exe` en el Administrador de tareas).
+2. Abre QGIS.
+3. Ve a **Complementos → Administrar e instalar complementos → Instalados**.
+4. Activa **"Exportador de Redes Pro (Beta 0.17.51)"**.
 
 ### Opción B — Instalación desde ZIP
 
@@ -46,18 +46,25 @@ C:\Users<usuario>\AppData\Roaming\QGIS\QGIS3\profiles\default\python\plugins\
 ### Flujo de trabajo
 
 1. **Pestaña 1 — Preparación**
+
 - Escribe el nombre del municipio.
 - Pulsa **▶ PREPARAR PROYECTO** → aplica estilos, oculta capas auxiliares, configura filtros.
-2. **Pestaña 2 — Cuadrícula**
+
+1. **Pestaña 2 — Cuadrícula**
+
 - Ajusta ancho, alto y solape.
 - Pulsa **Generar Capa de Recortes** → crea la capa `RecortesPDF` con la malla.
-3. **Pestaña 3 — Exportar**
+
+1. **Pestaña 3 — Exportar**
+
 - Configura DPI y formato (PNG/JPG).
 - **1.1** Generales e Índices (no requiere cuadrícula).
 - **1.2** Planos de Detalle (requiere cuadrícula).
 - **1.3** Leyendas.
 - **Unificar PDF** → genera el PDF final.
-4. **Pestaña 1 — Preparación**
+
+1. **Pestaña 1 — Preparación**
+
 - Pulsa **↺ RESTAURAR PROYECTO** al terminar.
 
 Los archivos se guardan en `ExportadorRedes_Beta/`:
@@ -74,7 +81,6 @@ Los archivos se guardan en `ExportadorRedes_Beta/`:
 ├── logos_generales/      # logo_dielmo.png + logos_feder.png (cofinanciación FEDER)
 └── logos_municipios/     # ~80 escudos municipales para portadas de planos
 ```
-
 
 ---
 

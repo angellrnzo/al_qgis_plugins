@@ -133,6 +133,7 @@ Carpeta `logos_tarragona/` — **no es un plugin instalable** (sin `metadata.txt
 | `logo_dielmo/` | `logo_dielmo.png` + `ico1.svg` | Institucional |
 
 **Archivos de estado** (se conservan sueltos, son pequeños):
+
 - `faltantes.txt` — 17 municipios que faltaban (ya cubiertos por `logos_faltantes/`)
 - `lista_descargados.txt` — 233 URLs/archivos descargados
 - `log_descarga.txt` — log de 484 líneas del proceso de descarga
@@ -156,6 +157,7 @@ powershell -File ..\Tools\package-plugin.ps1 -PluginName "ExportadorRedes_Beta"
 **Salida:** `al_qgis_plugins/dist/<Plugin>-v<X.Y.Z>.zip` — el script lee `version=` de `metadata.txt` y lo coloca **al final** del nombre (sin timestamp; se sobrescribe al regenerar la misma versión). El zip contiene la **carpeta del plugin como raíz** (`<Plugin>/metadata.txt`, …) — QGIS la exige para *Install from ZIP*; un zip con archivos sueltos en raíz falla con "No root folder was found inside".
 
 **Convención de versionado:**
+
 1. Subir `version=` en `metadata.txt` + constante `VERSION` en el código de entrada.
 2. Registrar el cambio en `CHANGELOG.md` / `changelog=` del metadata.
 3. Generar el zip — el nombre resultante identifica el build (`<Plugin>-v1.2.zip`).
