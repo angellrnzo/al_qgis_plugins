@@ -5,7 +5,7 @@ from qgis.PyQt.QtCore import Qt
 from qgis.PyQt.QtGui import QIcon
 from qgis.PyQt.QtWidgets import QDockWidget, QAction
 
-VERSION = "1.3"
+VERSION = "1.4"
 
 
 class TablaLateralPlugin:
@@ -38,9 +38,33 @@ class TablaLateralPlugin:
         dock = self._buscar_dock_tabla(capa)
         if dock:
             dock.setFloating(False)
-            self.iface.mainWindow().addDockWidget(Qt.RightDockWidgetArea, dock)
+            main = self.iface.mainWindow()
+            # Agrupar como pestaña con otra tabla ya visible en el panel derecho
+            for otro in main.findChildren(QDockWidget):
+                if otro is dock or not otro.isVisible():
+                    continue
+                if main.dockWidgetArea(otro) != Qt.RightDockWidgetArea:
+                    continue
+                if self._capa_de_dock(otro) is not None:
+                    main.tabifyDockWidget(otro, dock)
+                    break
+            else:
+                main.addDockWidget(Qt.RightDockWidgetArea, dock)
             dock.raise_()
             dock.setFocus()
+
+    def _capa_de_dock(self, dock):
+        """Devuelve la QgsMapLayer asociada a un dock de tabla, o None."""
+        for obj in (dock, dock.widget()):
+            getter = getattr(obj, "layer", None)
+            if callable(getter):
+                try:
+                    capa = getter()
+                    if capa is not None:
+                        return capa
+                except Exception:
+                    pass
+        return None
 
     def _buscar_dock_tabla(self, capa):
         """Localiza el QDockWidget que muestra la tabla de atributos de `capa`."""
@@ -49,15 +73,9 @@ class TablaLateralPlugin:
 
         # Primero por capa asociada (robusto ante renombrados y títulos localizados)
         for dock in docks:
-            for obj in (dock, dock.widget()):
-                getter = getattr(obj, "layer", None)
-                if callable(getter):
-                    try:
-                        capa_dock = getter()
-                        if capa_dock is not None and capa_dock.id() == capa_id:
-                            return dock
-                    except Exception:
-                        pass
+            capa_dock = self._capa_de_dock(dock)
+            if capa_dock is not None and capa_dock.id() == capa_id:
+                return dock
 
         # Fallback: coincidencia por título
         for dock in docks:

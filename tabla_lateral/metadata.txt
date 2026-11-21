@@ -2,8 +2,9 @@
 name=Tabla Lateral
 qgisMinimumVersion=3.0
 description=Abre la tabla de atributos de la capa activa directamente en el panel lateral de QGIS, sin ventana flotante.
-version=1.3
+version=1.4
 changelog=
+    1.4 - Las tablas abiertas se agrupan como pestañas en el panel derecho (tabifyDockWidget) en vez de apilarse; solo se tabifica con otros docks que tengan capa asociada.
     1.3 - Metadatos reescritos en formato QGIS oficial: changelog multilínea con indentación, campos completos (repository, category, hasProcessingProvider) y UTF-8 correcto. Corrige "Error al leer metadatos" en QGIS 3.40.
     1.2 - Detección robusta del dock de tabla por ID de capa (ya no depende del título), icono en la acción de barra de herramientas y validación isValid() de la capa activa.
     1.1 - Icono SVG profesional, metadatos completos (autor, changelog, about) y atajo Alt+T documentado.
