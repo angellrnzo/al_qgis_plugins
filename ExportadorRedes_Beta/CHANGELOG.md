@@ -7,6 +7,23 @@ Versionado según [SemVer](https://semver.org/lang/es/).
 
 ---
 
+## [0.17.48] — 2026-11-20 — BETA
+
+> Nota: las entradas 0.17.0–0.17.47 solo estaban documentadas en `metadata.txt` (`changelog=`); a partir de aquí se retoma este archivo.
+
+### Cambiado
+- **Versión centralizada**: `VERSION` en `__init__.py` es ahora la única fuente; la UI (título del dock, menú, acción) la usa vía f-strings en lugar de textos hardcodeados.
+- **Metadatos completados**: `email` real, `tracker` y `repository` apuntando al repo.
+- **`bloquear_ui_exportacion` dinámico**: los controles a bloquear se descubren con `findChildren` en la pestaña de exportación en lugar de una lista hardcodeada de 18 nombres; controles futuros quedan cubiertos automáticamente.
+
+### Añadido
+- **Espejo del registro en `QgsMessageLog`**: todo `log_message()` también escribe en *Ver → Paneles → Mensajes de Log* (etiqueta "ExportadorRedes"), facilitando depurar en equipos remotos sin acceso al panel del plugin.
+
+### Corregido
+- **`except: pass` → warnings logueados** en conexión de señales de proyecto y escritura de settings/historial de carpetas (antes fallaban en silencio).
+
+---
+
 ## [0.16.0] — 2026-11-03 — BETA
 
 Release que consolida los cambios planificados para las versiones 0.15 y 0.16 en un único salto. **Breaking change de compatibilidad**: `qgisMinimumVersion` sube de 3.16 a 3.30.

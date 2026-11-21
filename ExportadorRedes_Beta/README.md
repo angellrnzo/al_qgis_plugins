@@ -1,4 +1,4 @@
-# Exportador de Redes Pro — Beta 0.17.47
+# Exportador de Redes Pro — Beta 0.17.48
 
 Plugin QGIS que prepara el proyecto, genera cuadrículas de recortes, aplica estilos QML y exporta planos en PNG/JPG y PDF para redes de **Abastecimiento** y **Saneamiento**.
 
@@ -30,11 +30,11 @@ C:\Users<usuario>\AppData\Roaming\QGIS\QGIS3\profiles\default\python\plugins\
 2. Cierra QGIS por completo (verifica que no quede `qgis-bin.exe` en el Administrador de tareas).
 3. Abre QGIS.
 4. Ve a **Complementos → Administrar e instalar complementos → Instalados**.
-5. Activa **"Exportador de Redes Pro (Beta 0.17.47)"**.
+5. Activa **"Exportador de Redes Pro (Beta 0.17.48)"**.
 
 ### Opción B — Instalación desde ZIP
 
-1. Genera el `.zip` con `Tools\package-plugin.bat` del Workspace (el nombre del archivo incluye la versión, p. ej. `ExportadorRedes_Beta-v0.17.47-<timestamp>.zip`).
+1. Genera el `.zip` con `Tools\package-plugin.bat` del Workspace (el nombre del archivo incluye la versión, p. ej. `ExportadorRedes_Beta-v0.17.48-<timestamp>.zip`).
 2. En QGIS: **Complementos → Administrar e instalar complementos → Instalar desde ZIP**.
 3. Selecciona el `.zip` generado y pulsa **Instalar complemento**.
 4. Activa el plugin en la pestaña **Instalados**.
@@ -63,7 +63,7 @@ C:\Users<usuario>\AppData\Roaming\QGIS\QGIS3\profiles\default\python\plugins\
 Los archivos se guardan en `ExportadorRedes_Beta/`:
 
 ```text
-├── metadata.txt          # Metadatos del plugin (nombre, versión=0.17.47, autor)
+├── metadata.txt          # Metadatos del plugin (nombre, versión=0.17.48, autor)
 ├── __init__.py           # Punto de entrada (classFactory + VERSION)
 ├── exportador_plugin.py  # Código principal (~3300 líneas)
 ├── README.md             # Este archivo

@@ -2,8 +2,9 @@
 name=Tabla Lateral
 qgisMinimumVersion=3.0
 description=Abre la tabla de atributos de la capa activa directamente en el panel lateral de QGIS, sin ventana flotante.
-version=1.1
-changelog=1.1 - Icono SVG profesional, metadatos completos (autor, changelog, about) y atajo Alt+T documentado.
+version=1.2
+changelog=1.2 - Detección robusta del dock de tabla por ID de capa (ya no depende del título), icono en la acción de barra de herramientas y validación isValid() de la capa activa.
+1.1 - Icono SVG profesional, metadatos completos (autor, changelog, about) y atajo Alt+T documentado.
 about=Plugin minimalista que convierte la tabla de atributos en un QDockWidget acoplado al lateral derecho. Ideal para capas con muchas columnas o pantallas pequeñas.
 author=angellrnzo
 email=angellrnzo@users.noreply.github.com

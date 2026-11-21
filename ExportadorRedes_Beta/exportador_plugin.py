@@ -3,7 +3,7 @@
 Plugin QGIS: Exportador de Redes Pro
 Prepara el proyecto, genera cuadrículas, aplica estilos QML (QGIS 3.40)
 y exporta planos PNG/PDF de Abastecimiento y Saneamiento.
-Versión 0.17.47 - BETA. Logotipo municipal dinámico.
+Versión definida en VERSION (__init__.py) - BETA. Logotipo municipal dinámico.
 Requiere QGIS 3.30+.
 """
 
@@ -14,6 +14,11 @@ import re
 import html
 import unicodedata
 from datetime import datetime
+
+try:
+    from . import VERSION
+except ImportError:  # ejecución directa del archivo fuera del paquete
+    VERSION = '0.17.48'
 
 from qgis.PyQt.QtWidgets import (
     QAction, QDockWidget, QVBoxLayout, QHBoxLayout, QGridLayout, QLabel,
@@ -38,7 +43,7 @@ from qgis.core import (
     QgsLayerTreeLayer, QgsLayerTreeGroup,
     QgsCoordinateTransform,
     QgsMapLayer, Qgis, QgsVectorFileWriter, QgsSpatialIndex,
-    QgsMapLayerLegendUtils,
+    QgsMapLayerLegendUtils, QgsMessageLog,
 )
 
 # ============================================================
@@ -244,7 +249,7 @@ class StyleSelectionDialog(QDialog):
 class ExportadorRedesDockWidget(QDockWidget):
 
     def __init__(self, iface):
-        super().__init__("Plugin Exportador v0.17.47 (Beta)", iface.mainWindow())
+        super().__init__(f"Plugin Exportador v{VERSION} (Beta)", iface.mainWindow())
         self.iface = iface
         self.setAllowedAreas(Qt.LeftDockWidgetArea | Qt.RightDockWidgetArea)
         self.setMinimumWidth(400)
@@ -272,8 +277,8 @@ class ExportadorRedesDockWidget(QDockWidget):
         try:
             QgsProject.instance().readProject.connect(self._on_proyecto_leido)
             QgsProject.instance().cleared.connect(self._on_proyecto_limpiado)
-        except Exception:
-            pass
+        except Exception as exc:
+            self.log_message(f"No se pudieron conectar las señales de proyecto: {exc}", "WARNING")
 
         self.tabs = QTabWidget()
         self.tab_estatus = QWidget()
@@ -355,16 +360,16 @@ class ExportadorRedesDockWidget(QDockWidget):
     def _escribir_historial(self, lista):
         try:
             self.settings.setValue("PluginExportador/respaldos_historial", json.dumps(lista[:5]))
-        except Exception:
-            pass
+        except Exception as exc:
+            self.log_message(f"No se pudo guardar el historial de carpetas: {exc}", "WARNING")
 
     def _registrar_ruta(self, ruta, en_proyecto=True):
         if not ruta:
             return
         try:
             self.settings.setValue("PluginExportador/respaldos_ultima_ruta", ruta)
-        except Exception:
-            pass
+        except Exception as exc:
+            self.log_message(f"No se pudo guardar la última ruta de respaldos: {exc}", "WARNING")
 
         historial = self._leer_historial()
         if ruta in historial:
@@ -572,11 +577,20 @@ class ExportadorRedesDockWidget(QDockWidget):
         color_map = {"INFO": "#333333", "SUCCESS": "#2E7D32", "WARNING": "#E65100", "ERROR": "#C62828"}
         color = color_map.get(level, "#333333")
         msg_escapado = html.escape(str(msg))
-        cursor = self.txt_log.textCursor()
-        cursor.movePosition(QTextCursor.End)
-        self.txt_log.setTextCursor(cursor)
-        self.txt_log.insertHtml(f'<span style="color:{color};"><b>[{level}]</b> {msg_escapado}</span><br>')
-        self.txt_log.verticalScrollBar().setValue(self.txt_log.verticalScrollBar().maximum())
+        if hasattr(self, 'txt_log'):
+            cursor = self.txt_log.textCursor()
+            cursor.movePosition(QTextCursor.End)
+            self.txt_log.setTextCursor(cursor)
+            self.txt_log.insertHtml(f'<span style="color:{color};"><b>[{level}]</b> {msg_escapado}</span><br>')
+            self.txt_log.verticalScrollBar().setValue(self.txt_log.verticalScrollBar().maximum())
+        try:
+            qgis_level = {
+                "ERROR": QgsMessageLog.MessageLevel.Critical,
+                "WARNING": QgsMessageLog.MessageLevel.Warning,
+            }.get(level, QgsMessageLog.MessageLevel.Info)
+            QgsMessageLog.instance().logMessage(str(msg), "ExportadorRedes", qgis_level)
+        except Exception:
+            pass
 
     def copiar_log(self):
         from qgis.PyQt.QtWidgets import QApplication
@@ -2305,21 +2319,16 @@ class ExportadorRedesDockWidget(QDockWidget):
             if isinstance(remitente, QPushButton):
                 boton_activo = remitente
 
-        controles_bloquear = [
-            'btn_gen', 'btn_indiv', 'btn_leyendas', 'btn_pdf', 'btn_run_all',
-            'chk_exp_gen', 'chk_exp_rec', 'chk_exp_leg', 'chk_exp_pdf',
-            'spin_dpi_gen', 'spin_dpi_leg', 'spin_dpi_rec', 'cmb_formato',
-            'chk_feder', 'cmb_idioma_feder', 'chk_dielmo', 'chk_municipio', 'cmb_municipio',
-            'btn_abrir_pdf'
-        ]
+        controles_bloquear = []
+        for tipo in (QPushButton, QCheckBox, QSpinBox, QComboBox):
+            controles_bloquear.extend(self.tab_exportador.findChildren(tipo))
+        excluir = {id(w) for w in (self.btn_stop, self.btn_toggle_modulos)}
+        controles_bloquear = [w for w in controles_bloquear if id(w) not in excluir]
 
-        for nombre_w in controles_bloquear:
-            w = getattr(self, nombre_w, None)
-            if w is None:
-                continue
-            if nombre_w == 'cmb_municipio':
+        for w in controles_bloquear:
+            if w is self.cmb_municipio:
                 w.setEnabled((not bloquear) and self.chk_municipio.isChecked())
-            elif nombre_w == 'cmb_idioma_feder':
+            elif w is self.cmb_idioma_feder:
                 w.setEnabled((not bloquear) and self.chk_feder.isChecked())
             else:
                 w.setEnabled(not bloquear)
@@ -3232,10 +3241,10 @@ class ExportadorRedesPlugin:
                 }
             ''')
 
-        self.menu_name = "&Exportador de Redes (Beta 0.17.47)"
+        self.menu_name = f"&Exportador de Redes (Beta {VERSION})"
         icon_path = os.path.join(self.plugin_dir, 'icon.png')
         icon = QIcon(icon_path) if os.path.exists(icon_path) else QIcon()
-        self.action = QAction(icon, "Exportador v0.17.47 (Beta)", self.iface.mainWindow())
+        self.action = QAction(icon, f"Exportador v{VERSION} (Beta)", self.iface.mainWindow())
         self.action.setCheckable(True)
         self.action.triggered.connect(self.run)
         self.iface.addToolBarIcon(self.action)
@@ -3256,7 +3265,7 @@ class ExportadorRedesPlugin:
             self.dock.deleteLater()
             self.dock = None
         if self.action:
-            self.iface.removePluginMenu(getattr(self, 'menu_name', "&Exportador de Redes (Beta 0.17.47)"), self.action)
+            self.iface.removePluginMenu(getattr(self, 'menu_name', f"&Exportador de Redes (Beta {VERSION})"), self.action)
             self.iface.removeToolBarIcon(self.action)
             self.action = None
         if hasattr(self, '_old_app_style'):

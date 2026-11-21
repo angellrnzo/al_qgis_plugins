@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
 """
-Exportador de Redes Pro (Beta 0.17.47)
+Exportador de Redes Pro (Beta)
 Plugin QGIS para automatizar la preparación, recorte y exportación
 de planos de Abastecimiento y Saneamiento.
 """
 
-VERSION = '0.17.47'
+VERSION = '0.17.48'
 
 
 def classFactory(iface):

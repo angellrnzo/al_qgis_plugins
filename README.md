@@ -10,8 +10,8 @@ Cada plugin es una **carpeta sin comprimir** en la raíz del repo. Los `.zip` de
 
 | Carpeta | Tipo | Descripción |
 | :--- | :--- | :--- |
-| [`ExportadorRedes_Beta/`](ExportadorRedes_Beta/) | ✅ Plugin QGIS | Exportador automático de planos de redes (Abastecimiento y Saneamiento): preparación de proyecto, cuadrículas y exportación PNG/JPG/PDF con maquetación FEDER. **v0.17.47** |
-| [`tabla_lateral/`](tabla_lateral/) | ✅ Plugin QGIS | Panel lateral con la tabla de atributos de la capa activa (icono SVG, atajo `Alt+T`). **v1.1** |
+| [`ExportadorRedes_Beta/`](ExportadorRedes_Beta/) | ✅ Plugin QGIS | Exportador automático de planos de redes (Abastecimiento y Saneamiento): preparación de proyecto, cuadrículas y exportación PNG/JPG/PDF con maquetación FEDER. **v0.17.48** |
+| [`tabla_lateral/`](tabla_lateral/) | ✅ Plugin QGIS | Panel lateral con la tabla de atributos de la capa activa (icono SVG, atajo `Alt+T`). **v1.2** |
 | [`logos_tarragona/`](logos_tarragona/) | 🛠️ Tooling | Scripts Python de descarga/organización de escudos municipales de Tarragona + assets comprimidos en `logos_tarragona_assets.zip` (351 archivos) |
 | `dist/` | 📦 Output | `.zip` de test generados — **no commitear** |
 
@@ -61,7 +61,7 @@ Documents\Workspace\
     └── package-plugin.bat
 ```
 
-- **Empaquetar:** `Tools\package-plugin.bat` → indica el nombre del plugin → genera `dist/<plugin>-<timestamp>.zip`.
+- **Empaquetar:** `Tools\package-plugin.bat` → indica el nombre del plugin → genera `dist/<plugin>-v<X.Y.Z>-<timestamp>.zip` (la versión se lee de `metadata.txt`).
 - **Commitear:** los cambios en las carpetas de plugins se suben con `git add/commit/push` normal.
 - Los `.zip` de `dist/` **nunca** se commitean.
 

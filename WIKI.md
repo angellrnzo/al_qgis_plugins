@@ -30,10 +30,10 @@ Manual técnico de los plugins y herramientas del repositorio. Para instalación
 name=Nombre visible en Plugins
 qgisMinimumVersion=3.30
 description=Descripción corta
-version=0.17.47
+version=0.17.48
 changelog=Historial legible por el usuario
 author=angellrnzo
-email=correo@real.com          # ⚠️ actual: placeholder "tu_correo@ejemplo.com"
+email=angellrnzo@users.noreply.github.com
 about=Texto "About" del diálogo de plugins
 tracker=URL del issue tracker (opcional)
 hasProcessingProvider=no       # sí/no si provee algoritmos Processing
@@ -45,7 +45,7 @@ Campos clave: `qgisMinimumVersion` controla compatibilidad; `changelog` se muest
 
 ## 2. Plugin: ExportadorRedes_Beta
 
-**Versión:** 0.17.47 (Beta) · **Requisito:** QGIS ≥ 3.30 · **Autor:** angellrnzo
+**Versión:** 0.17.48 (Beta) · **Requisito:** QGIS ≥ 3.30 · **Autor:** angellrnzo
 
 Herramienta de automatización para proyectos de redes de abastecimiento y saneamiento (DIELMO / contexto municipal).
 
@@ -53,7 +53,7 @@ Herramienta de automatización para proyectos de redes de abastecimiento y sanea
 
 ```text
 ExportadorRedes_Beta/
-├── metadata.txt              # v0.17.47 — ver changelog para historial completo
+├── metadata.txt              # v0.17.48 — ver changelog para historial completo
 ├── __init__.py               # classFactory() → ExportadorPlugin
 ├── exportador_plugin.py      # ~3300 líneas: lógica principal
 ├── icon.png
@@ -74,27 +74,30 @@ ExportadorRedes_Beta/
 
 ### ⚠️ Notas técnicas conocidas
 
-- `STYLES_WS` / `STYLES_UD` apuntan a rutas absolutas `F:\Tarragona\...` — **hardcodeadas**; en otros equipos hay que ajustar o parametrizar.
-- `metadata.txt` tiene `email=tu_correo@ejemplo.com` (placeholder pendiente de reemplazar).
+- `STYLES_WS` / `STYLES_UD` apuntan a rutas absolutas `F:\Tarragona\...` — **hardcodeadas a propósito**: el plugin se ejecuta en un equipo remoto donde los proyectos viven en esa ruta (los `.qgz` se distribuyen por Google Drive). Además `estilos/222_s.qml` referencia CSVs de virtualización en `F:/Tarragona/...`.
+- La versión vive solo en `VERSION` (`__init__.py`); `exportador_plugin.py` la importa y la usa en títulos de UI. Para bump: `metadata.txt` (`version=` + `changelog=` + `name=`) + `VERSION` + entrada en `CHANGELOG.md`.
+- `metadata.txt` tiene email/tracker/repository reales (repo: `angellrnzo/al_qgis_plugins`).
+- `log_message()` escribe en el panel del plugin **y** en `QgsMessageLog` (etiqueta `ExportadorRedes`) → visible en *Ver → Paneles → Mensajes de Log* para depurar en remoto.
+- `bloquear_ui_exportacion()` descubre los controles por `findChildren` en `tab_exportador` (excluye `btn_stop` y `btn_toggle_modulos`); `cmb_municipio`/`cmb_idioma_feder` conservan su lógica de habilitación condicional.
 
 ---
 
 ## 3. Plugin: Tabla Lateral
 
-**Versión:** 1.1 · **Requisito:** QGIS ≥ 3.0 · **Icono:** `icon.svg`
+**Versión:** 1.2 · **Requisito:** QGIS ≥ 3.0 · **Icono:** `icon.svg`
 
 Plugin mínimo que abre la tabla de atributos de la capa activa en el **panel lateral** como `QDockWidget` acoplado a la derecha.
 
 ```text
 tabla_lateral/
-├── metadata.txt   # version=1.1, changelog, about, tracker
+├── metadata.txt   # version=1.2, changelog, about, tracker
 ├── __init__.py    # classFactory() → TablaLateralPlugin
-├── main.py        # Lógica + VERSION = "1.1"; acción, dock, atajo Alt+T
+├── main.py        # Lógica + VERSION = "1.2"; acción, dock, atajo Alt+T
 ├── icon.svg       # Icono vectorial del plugin
 └── README.md      # Doc del plugin
 ```
 
-**Comportamiento:** `ejecutar()` obtiene `iface.activeLayer()`, valida `QgsMapLayerType.VectorLayer`, llama `iface.showAttributeTable(capa)` y re-acopla el `QDockWidget` resultante a `Qt.RightDockWidgetArea` buscando el dock por nombre de capa. Sin capa vectorial → `messageBar().pushWarning`.
+**Comportamiento:** `ejecutar()` obtiene `iface.activeLayer()`, valida `isValid()` + `QgsMapLayerType.VectorLayer`, llama `iface.showAttributeTable(capa)` y re-acopla el `QDockWidget` resultante a `Qt.RightDockWidgetArea`. `_buscar_dock_tabla()` localiza el dock por `layer().id()` (robusto ante renombrados y títulos localizados) con fallback a coincidencia por título. Sin capa válida → `messageBar().pushWarning`. La `QAction` lleva `icon.svg` en toolbar.
 
 **Atajos:** `Alt+T` (registrado vía `registerMainWindowAction`).
 
