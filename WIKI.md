@@ -110,18 +110,15 @@ tabla_lateral/
 
 ## 4. Pipeline de Logos de Tarragona
 
-Carpeta `logos_tarragona/` — **no es un plugin instalable** (sin `metadata.txt`); es un toolkit de scripts Python + assets.
+Carpeta `logos_tarragona/` — **no es un plugin instalable** (sin `metadata.txt`); es un toolkit de un solo script + assets.
 
-### Scripts
+### Script único
 
-| Script | Propósito |
+| Archivo | Propósito |
 | :--- | :--- |
-| `descargar_logos.py` | Descarga escudos desde fuentes abiertas (Ayuntamientos, Wikipedia, THV) |
-| `proceso.py` | Renombrado normalizado (`NN_nombre.png`), recorte y conversión |
-| `mapear_def.py` | Mapeo nombre-de-municipio → archivo de imagen |
-| `verificar_logos.py` | Chequeo de integridad / descargas fallidas |
-| `listar_archivos.py` | Inventario del estado del pipeline |
-| `limpiar_todo.py` | Eliminación de temporales y duplicados |
+| `logos_tarragona.py` | Menú interactivo con todo el pipeline: descarga Wikimedia, procesado de imágenes manuales (fondo transparente + auto-recorte + 800px), mapeo/renombrado a `NN_municipio.png`, verificación de los 82 municipios, limpieza en lote y modo "pipeline guiado" que pregunta qué ejecutar |
+
+> Versión consolidada (2026-11-22): antes eran 6 scripts separados con código duplicado — ahora todo vive en `logos_tarragona.py` (`python logos_tarragona.py`). Requiere `Pillow` (`requirements.txt`).
 
 ### Estado de los assets (`logos_tarragona_assets.zip`, 351 entradas)
 
