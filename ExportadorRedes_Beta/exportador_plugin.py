@@ -18,7 +18,7 @@ from datetime import datetime
 try:
     from . import VERSION
 except ImportError:  # ejecución directa del archivo fuera del paquete
-    VERSION = '0.17.50'
+    VERSION = '0.17.51'
 
 from qgis.PyQt.QtWidgets import (
     QAction, QDockWidget, QVBoxLayout, QHBoxLayout, QGridLayout, QLabel,
@@ -3307,6 +3307,14 @@ class ExportadorRedesPlugin:
         if self.dock is None:
             self.dock = ExportadorRedesDockWidget(self.iface)
             self.iface.addDockWidget(Qt.RightDockWidgetArea, self.dock)
+            # Agrupar como pestaña con otro dock visible del área derecha
+            main = self.iface.mainWindow()
+            for otro in main.findChildren(QDockWidget):
+                if otro is self.dock or not otro.isVisible():
+                    continue
+                if main.dockWidgetArea(otro) == Qt.RightDockWidgetArea:
+                    main.tabifyDockWidget(otro, self.dock)
+                    break
             self.dock.visibilityChanged.connect(self._on_dock_visibility)
             self.dock.show()
         else:

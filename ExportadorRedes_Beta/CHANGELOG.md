@@ -7,6 +7,13 @@ Versionado según [SemVer](https://semver.org/lang/es/).
 
 ---
 
+## [0.17.51] — 2026-11-20 — BETA
+
+### Añadido
+- **Dock del plugin como pestaña**: al abrirse, el panel del Exportador se agrupa como pestaña con otros docks visibles del área derecha (`tabifyDockWidget`) en lugar de apilarse como dock independiente.
+
+---
+
 ## [0.17.50] — 2026-11-20 — BETA
 
 ### Corregido

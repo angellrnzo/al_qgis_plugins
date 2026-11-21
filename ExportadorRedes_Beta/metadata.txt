@@ -1,9 +1,10 @@
 [general]
-name=Exportador de Redes Pro (Beta 0.17.50)
+name=Exportador de Redes Pro (Beta 0.17.51)
 qgisMinimumVersion=3.30
 description=Prepara el proyecto, genera cuadrículas y exporta planos (PNG, JPG y PDF) de Abastecimiento y Saneamiento de forma automática.
-version=0.17.50
+version=0.17.51
 changelog=
+    0.17.51 - BETA. El dock del plugin se agrupa como pestaña con otros docks visibles del panel derecho (tabifyDockWidget) en vez de apilarse.
     0.17.50 - BETA. FIX: get_grupo_raiz solo reconoce grupos Potable/Saneamiento/RecortesPDF de primer nivel; un subgrupo anidado con nombre similar (p. ej. 'saneamiento' dentro de una carpeta DXF/GPKG) ya no mantiene visible todo su contenido al preparar el proyecto.
     0.17.49 - BETA. Acordeón "Módulos de Exportación" arranca plegado; aviso de capas auxiliares ocultadas pasa a un único WARNING resumen.
     0.17.48 - BETA. Versión centralizada en la constante VERSION; metadatos completados; bloqueo de UI dinámico; registro espejado en QgsMessageLog; warnings en settings/señales que fallaban en silencio.
