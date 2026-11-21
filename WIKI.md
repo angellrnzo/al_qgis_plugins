@@ -1,0 +1,162 @@
+# 📚 al_qgis_plugins — Technical Wiki
+
+Manual técnico de los plugins y herramientas del repositorio. Para instalación rápida ver [README.md](README.md).
+
+---
+
+## 📑 Índice
+
+1. [Convenciones del Repositorio](#1-convenciones-del-repositorio)
+2. [Plugin: ExportadorRedes_Beta](#2-plugin-exportadorredes_beta)
+3. [Plugin: Tabla Lateral](#3-plugin-tabla-lateral)
+4. [Pipeline de Logos de Tarragona](#4-pipeline-de-logos-de-tarragona)
+5. [Sistema de Empaquetado (.zip)](#5-sistema-de-empaquetado-zip)
+6. [Troubleshooting](#6-troubleshooting)
+
+---
+
+## 1. Convenciones del Repositorio
+
+- **Un plugin = una carpeta** en la raíz, nombrada en `PascalCase_Snake` (`ExportadorRedes_Beta`).
+- **Sin comprimir en el repo** — el control de versiones gestiona el código; los `.zip` son solo artefactos de test.
+- **`dist/` está en `.gitignore`** — nunca commitear paquetes generados.
+- **Assets pesados** (imágenes, PDFs) se consolidan en `.zip` internos antes de commitear para no inflar el árbol de trabajo.
+- Cada plugin debe tener `metadata.txt` + `__init__.py` válidos para QGIS Plugin Builder.
+
+### Formato de `metadata.txt` (QGIS)
+
+```ini
+[general]
+name=Nombre visible en Plugins
+qgisMinimumVersion=3.30
+description=Descripción corta
+version=0.17.47
+changelog=Historial legible por el usuario
+author=angellrnzo
+email=correo@real.com          # ⚠️ actual: placeholder "tu_correo@ejemplo.com"
+about=Texto "About" del diálogo de plugins
+tracker=URL del issue tracker (opcional)
+hasProcessingProvider=no       # sí/no si provee algoritmos Processing
+```
+
+Campos clave: `qgisMinimumVersion` controla compatibilidad; `changelog` se muestra al actualizar; `icon.png` aparece en *Manage and Install Plugins*.
+
+---
+
+## 2. Plugin: ExportadorRedes_Beta
+
+**Versión:** 0.17.47 (Beta) · **Requisito:** QGIS ≥ 3.30 · **Autor:** angellrnzo
+
+Herramienta de automatización para proyectos de redes de abastecimiento y saneamiento (DIELMO / contexto municipal).
+
+### Estructura interna
+
+```text
+ExportadorRedes_Beta/
+├── metadata.txt              # v0.17.47 — ver changelog para historial completo
+├── __init__.py               # classFactory() → ExportadorPlugin
+├── exportador_plugin.py      # ~3300 líneas: lógica principal
+├── icon.png
+├── README.md / CHANGELOG.md / LICENSE.txt
+├── estilos/                  # Estilos QML de impresión (recortes.qml, 111_p, 124_p, 211_s, 222_s, 225_s)
+├── logos_generales/          # logo_dielmo.png + logos_feder.png (cofinanciación FEDER)
+└── logos_municipios/         # ~80 escudos numerados (01_alcover.png …) para portada de planos
+```
+
+### Funcionalidades principales (según CHANGELOG)
+
+- Preparación automática del proyecto y generación de cuadrículas de planos.
+- Exportación masiva a **PNG, JPG y PDF** con DPI independientes para planos generales, leyendas y detalles.
+- Selector de idioma **CA/ES** para el texto legal de cofinanciación FEDER.
+- Detección automática del logotipo municipal por atributos del proyecto.
+- Historial de carpetas recientes y rutas de respaldo QML fijadas en el `.qgz`.
+- Fallbacks de capas satelitales/ortofoto con aviso cuando hay múltiples.
+
+### ⚠️ Notas técnicas conocidas
+
+- `STYLES_WS` / `STYLES_UD` apuntan a rutas absolutas `F:\Tarragona\...` — **hardcodeadas**; en otros equipos hay que ajustar o parametrizar.
+- `metadata.txt` tiene `email=tu_correo@ejemplo.com` (placeholder pendiente de reemplazar).
+
+---
+
+## 3. Plugin: Tabla Lateral
+
+**Versión:** 1.0 · **Requisito:** QGIS ≥ 3.0
+
+Plugin mínimo (~3 archivos): abre la tabla de atributos de la capa activa en el **panel lateral** en lugar de como ventana flotante.
+
+```text
+tabla_lateral/
+├── metadata.txt
+├── __init__.py
+└── main.py                   # Provider del panel lateral
+```
+
+Útil para trabajo con tablas anchas o en monitores pequeños.
+
+---
+
+## 4. Pipeline de Logos de Tarragona
+
+Carpeta `logos_tarragona/` — **no es un plugin instalable** (sin `metadata.txt`); es un toolkit de scripts Python + assets.
+
+### Scripts
+
+| Script | Propósito |
+| :--- | :--- |
+| `descargar_logos.py` | Descarga escudos desde fuentes abiertas (Ayuntamientos, Wikipedia, THV) |
+| `proceso.py` | Renombrado normalizado (`NN_nombre.png`), recorte y conversión |
+| `mapear_def.py` | Mapeo nombre-de-municipio → archivo de imagen |
+| `verificar_logos.py` | Chequeo de integridad / descargas fallidas |
+| `listar_archivos.py` | Inventario del estado del pipeline |
+| `limpiar_todo.py` | Eliminación de temporales y duplicados |
+
+### Estado de los assets (`logos_tarragona_assets.zip`, 351 entradas)
+
+| Subcarpeta | Contenido | Estado |
+| :--- | :--- | :--- |
+| `logos_municipios/` | 250 escudos raw (variantes `_THV_ES`, históricos, DOGC) | Fuente original |
+| `logos_finales/` | 82 escudos procesados finales | ✅ Resultado del pipeline |
+| `logos_faltantes/` | 17 municipios recuperados | ✅ `faltantes.txt` resuelto |
+| `logo_dielmo/` | `logo_dielmo.png` + `ico1.svg` | Institucional |
+
+**Archivos de estado** (se conservan sueltos, son pequeños):
+- `faltantes.txt` — 17 municipios que faltaban (ya cubiertos por `logos_faltantes/`)
+- `lista_descargados.txt` — 233 URLs/archivos descargados
+- `log_descarga.txt` — log de 484 líneas del proceso de descarga
+
+> **Para re-ejecutar el pipeline:** descomprimir `logos_tarragona_assets.zip` en `logos_tarragona/` para restaurar las carpetas de imágenes que los scripts esperan.
+
+---
+
+## 5. Sistema de Empaquetado (.zip)
+
+Los `.zip` de test se generan con `Tools\package-plugin.ps1` del Workspace:
+
+```powershell
+# Uso directo
+powershell -File ..\Tools\package-plugin.ps1 -PluginName "ExportadorRedes_Beta"
+
+# Uso interactivo (doble clic)
+..\Tools\package-plugin.bat
+```
+
+**Salida:** `al_qgis_plugins/dist/<Plugin>-<yyyyMMdd-HHmmss>.zip` — contiene el **contenido** de la carpeta (sin la carpeta padre), que es lo que QGIS espera al instalar desde ZIP.
+
+`dist/` está cubierto por `.gitignore`; los zips no se versionan.
+
+---
+
+## 6. Troubleshooting
+
+| Problema | Causa | Solución |
+| :--- | :--- | :--- |
+| Plugin no aparece en QGIS | `metadata.txt` mal formado o `__init__.py` sin `classFactory()` | Validar con *Plugins → Show Python Error Log*; revisar encoding UTF-8 |
+| Error de rutas `F:\Tarragona` | Paths hardcodeados en `exportador_plugin.py` | Ajustar `STYLES_WS`/`STYLES_UD` o crear la estructura de carpetas esperada |
+| Logos municipales no cargan | Falta `logos_municipios/` dentro del plugin | Está incluido en el repo; si se instaló desde ZIP antiguo, regenerar el paquete |
+| `.zip` muy grande (>100MB) | Assets sin comprimir dentro del plugin | Consolidar assets en `.zip` interno o usar Git LFS |
+| Scripts de `logos_tarragona` fallan | Carpetas de imágenes comprimidas | Extraer `logos_tarragona_assets.zip` en la carpeta |
+
+---
+
+*Última actualización: 2026-11-20*
