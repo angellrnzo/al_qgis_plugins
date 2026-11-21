@@ -148,12 +148,12 @@ powershell -File ..\Tools\package-plugin.ps1 -PluginName "ExportadorRedes_Beta"
 ..\Tools\package-plugin.bat
 ```
 
-**Salida:** `al_qgis_plugins/dist/<Plugin>-v<X.Y.Z>-<yyyyMMdd-HHmmss>.zip` — el script lee `version=` de `metadata.txt` y lo incrusta en el nombre. El zip contiene el **contenido** de la carpeta (sin la carpeta padre), que es lo que QGIS espera al instalar desde ZIP.
+**Salida:** `al_qgis_plugins/dist/<Plugin>-v<X.Y.Z>.zip` — el script lee `version=` de `metadata.txt` y lo coloca **al final** del nombre (sin timestamp; se sobrescribe al regenerar la misma versión). El zip contiene el **contenido** de la carpeta (sin la carpeta padre), que es lo que QGIS espera al instalar desde ZIP.
 
 **Convención de versionado:**
 1. Subir `version=` en `metadata.txt` + constante `VERSION` en el código de entrada.
 2. Registrar el cambio en `CHANGELOG.md` / `changelog=` del metadata.
-3. Generar el zip — el nombre resultante identifica el build (`-v1.1-`).
+3. Generar el zip — el nombre resultante identifica el build (`<Plugin>-v1.2.zip`).
 4. QGIS muestra la versión del `metadata.txt` en *Manage and Install Plugins → Installed*, por lo que cada instalación desde ZIP es trazable.
 
 `dist/` está cubierto por `.gitignore`; los zips no se versionan.

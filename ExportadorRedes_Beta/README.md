@@ -34,7 +34,7 @@ C:\Users<usuario>\AppData\Roaming\QGIS\QGIS3\profiles\default\python\plugins\
 
 ### Opción B — Instalación desde ZIP
 
-1. Genera el `.zip` con `Tools\package-plugin.bat` del Workspace (el nombre del archivo incluye la versión, p. ej. `ExportadorRedes_Beta-v0.17.48-<timestamp>.zip`).
+1. Genera el `.zip` con `Tools\package-plugin.bat` del Workspace (el nombre del archivo incluye la versión, p. ej. `ExportadorRedes_Beta-v0.17.48.zip`).
 2. En QGIS: **Complementos → Administrar e instalar complementos → Instalar desde ZIP**.
 3. Selecciona el `.zip` generado y pulsa **Instalar complemento**.
 4. Activa el plugin en la pestaña **Instalados**.

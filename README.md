@@ -46,7 +46,7 @@ Cada plugin es una **carpeta sin comprimir** en la raíz del repo. Los `.zip` de
 ## 🔄 Versionado
 
 - La versión canónica vive en `metadata.txt` (`version=`) y como constante `VERSION` en el código de entrada.
-- Cada `.zip` generado incluye la versión en el nombre: `<Plugin>-v<X.Y.Z>-<timestamp>.zip` — así cada build instalado desde ZIP es identificable en QGIS (*Plugins → Installed* muestra nombre + versión del `metadata.txt*).
+- Cada `.zip` generado se nombra `<Plugin>-v<X.Y.Z>.zip` (versión de `metadata.txt` al final, sin timestamp) — así cada build instalado desde ZIP es identificable en QGIS (*Plugins → Installed* muestra nombre + versión del `metadata.txt*).
 - Regla: **sube la versión en código antes de generar un nuevo paquete**; nunca reutilices un número.
 
 ## 🔄 Flujo de Trabajo (Workspace)
@@ -61,7 +61,7 @@ Documents\Workspace\
     └── package-plugin.bat
 ```
 
-- **Empaquetar:** `Tools\package-plugin.bat` → indica el nombre del plugin → genera `dist/<plugin>-v<X.Y.Z>-<timestamp>.zip` (la versión se lee de `metadata.txt`).
+- **Empaquetar:** `Tools\package-plugin.bat` → indica el nombre del plugin → genera `dist/<plugin>-v<X.Y.Z>.zip` (la versión se lee de `metadata.txt` y va al final).
 - **Commitear:** los cambios en las carpetas de plugins se suben con `git add/commit/push` normal.
 - Los `.zip` de `dist/` **nunca** se commitean.
 
