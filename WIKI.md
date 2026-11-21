@@ -160,6 +160,8 @@ powershell -File ..\Tools\package-plugin.ps1 -PluginName "ExportadorRedes_Beta"
 
 `dist/` está cubierto por `.gitignore`; los zips no se versionan.
 
+**Rotación de backups:** el script conserva automáticamente los **3 builds más recientes por plugin** en `dist/`. Al generar un nuevo zip, el más viejo de ese plugin se borra solo (mensaje amarillo en consola).
+
 ---
 
 ## 6. Troubleshooting
