@@ -30,7 +30,7 @@ Manual técnico de los plugins y herramientas del repositorio. Para instalación
 name=Nombre visible en Plugins
 qgisMinimumVersion=3.30
 description=Descripción corta
-version=0.17.49
+version=0.17.50
 changelog=Historial legible por el usuario
 author=angellrnzo
 email=angellrnzo@users.noreply.github.com
@@ -45,7 +45,7 @@ Campos clave: `qgisMinimumVersion` controla compatibilidad; `changelog` se muest
 
 ## 2. Plugin: ExportadorRedes_Beta
 
-**Versión:** 0.17.49 (Beta) · **Requisito:** QGIS ≥ 3.30 · **Autor:** angellrnzo
+**Versión:** 0.17.50 (Beta) · **Requisito:** QGIS ≥ 3.30 · **Autor:** angellrnzo
 
 Herramienta de automatización para proyectos de redes de abastecimiento y saneamiento (DIELMO / contexto municipal).
 
@@ -53,7 +53,7 @@ Herramienta de automatización para proyectos de redes de abastecimiento y sanea
 
 ```text
 ExportadorRedes_Beta/
-├── metadata.txt              # v0.17.49 — ver changelog para historial completo
+├── metadata.txt              # v0.17.50 — ver changelog para historial completo
 ├── __init__.py               # classFactory() → ExportadorPlugin
 ├── exportador_plugin.py      # ~3300 líneas: lógica principal
 ├── icon.png
@@ -80,6 +80,7 @@ ExportadorRedes_Beta/
 - `log_message()` escribe en el panel del plugin **y** en `QgsMessageLog` (etiqueta `ExportadorRedes`) → visible en *Ver → Paneles → Mensajes de Log* para depurar en remoto.
 - `bloquear_ui_exportacion()` descubre los controles por `findChildren` en `tab_exportador` (excluye `btn_stop` y `btn_toggle_modulos`); `cmb_municipio`/`cmb_idioma_feder` conservan su lógica de habilitación condicional.
 - Las capas ocultadas por keyword (`AUX_KEYWORDS`/`MDT_KEYWORDS`) generan **un único WARNING resumen** con el total y hasta 10 nombres (antes un WARNING por capa). El acordeón "Módulos de Exportación" arranca plegado.
+- `get_grupo_raiz()` solo reconoce `Potable`/`Saneamiento`/`RecortesPDF` como **grupos de primer nivel** del árbol (fix 0.17.50: subgrupos anidados con nombre parecido ya no mantienen visible su contenido).
 
 ---
 

@@ -7,6 +7,13 @@ Versionado según [SemVer](https://semver.org/lang/es/).
 
 ---
 
+## [0.17.50] — 2026-11-20 — BETA
+
+### Corregido
+- **`get_grupo_raiz` con falso positivo por nombre**: antes cualquier ancestro llamado `Potable`/`Saneamiento`/`RecortesPDF` activaba las reglas de grupo, a cualquier profundidad. Un subgrupo anidado llamado `saneamiento` dentro de una carpeta de datos (`2003_..._COPIA_DXF_GPKG`) mantenía todo su contenido visible al preparar el proyecto. Ahora solo cuentan los grupos **de primer nivel** del árbol de capas; si el proyecto no tiene ninguno en raíz se conserva el comportamiento anterior como fallback.
+
+---
+
 ## [0.17.49] — 2026-11-20 — BETA
 
 ### Cambiado

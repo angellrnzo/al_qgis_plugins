@@ -18,7 +18,7 @@ from datetime import datetime
 try:
     from . import VERSION
 except ImportError:  # ejecución directa del archivo fuera del paquete
-    VERSION = '0.17.49'
+    VERSION = '0.17.50'
 
 from qgis.PyQt.QtWidgets import (
     QAction, QDockWidget, QVBoxLayout, QHBoxLayout, QGridLayout, QLabel,
@@ -1168,13 +1168,31 @@ class ExportadorRedesDockWidget(QDockWidget):
                     return 'aux_kw'
                 return 'normal'
 
-            def get_grupo_raiz(nodo):
-                p = nodo.parent()
-                while p:
-                    if p.name() in ('Potable', 'Saneamiento', 'RecortesPDF'):
-                        return p.name()
-                    p = p.parent()
-                return None
+            # Solo los grupos de primer nivel cuentan como raíz de red:
+            # un subgrupo anidado que se llame igual (p. ej. 'saneamiento'
+            # dentro de una carpeta de datos DXF/GPKG) no debe activarlas.
+            grupos_raiz = [
+                g for g in root.children()
+                if isinstance(g, QgsLayerTreeGroup)
+                and g.name() in ('Potable', 'Saneamiento', 'RecortesPDF')
+            ]
+
+            if grupos_raiz:
+                def get_grupo_raiz(nodo):
+                    p = nodo.parent()
+                    while p:
+                        if any(p is g for g in grupos_raiz):
+                            return p.name()
+                        p = p.parent()
+                    return None
+            else:
+                def get_grupo_raiz(nodo):
+                    p = nodo.parent()
+                    while p:
+                        if p.name() in ('Potable', 'Saneamiento', 'RecortesPDF'):
+                            return p.name()
+                        p = p.parent()
+                    return None
 
             capas_extra_ids = self._obtener_capas_extra_ids()
 
