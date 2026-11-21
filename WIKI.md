@@ -12,6 +12,7 @@ Manual técnico de los plugins y herramientas del repositorio. Para instalación
 4. [Pipeline de Logos de Tarragona](#4-pipeline-de-logos-de-tarragona)
 5. [Sistema de Empaquetado (.zip)](#5-sistema-de-empaquetado-zip)
 6. [Troubleshooting](#6-troubleshooting)
+7. [Roadmap](ROADMAP.md)
 
 ---
 
@@ -45,7 +46,7 @@ Campos clave: `qgisMinimumVersion` controla compatibilidad; `changelog` se muest
 
 ## 2. Plugin: ExportadorRedes_Beta
 
-**Versión:** 0.17.50 (Beta) · **Requisito:** QGIS ≥ 3.30 · **Autor:** angellrnzo
+**Versión:** 0.17.51 (Beta) · **Requisito:** QGIS ≥ 3.30 · **Autor:** angellrnzo
 
 Herramienta de automatización para proyectos de redes de abastecimiento y saneamiento (DIELMO / contexto municipal).
 
@@ -53,7 +54,7 @@ Herramienta de automatización para proyectos de redes de abastecimiento y sanea
 
 ```text
 ExportadorRedes_Beta/
-├── metadata.txt              # v0.17.50 — ver changelog para historial completo
+├── metadata.txt              # v0.17.51 — ver changelog para historial completo
 ├── __init__.py               # classFactory() → ExportadorPlugin
 ├── exportador_plugin.py      # ~3300 líneas: lógica principal
 ├── icon.png
@@ -86,15 +87,17 @@ ExportadorRedes_Beta/
 
 ## 3. Plugin: Tabla Lateral
 
-**Versión:** 1.2 · **Requisito:** QGIS ≥ 3.0 · **Icono:** `icon.svg`
+**Versión:** 1.4 · **Requisito:** QGIS ≥ 3.0 · **Icono:** `icon.svg`
 
 Plugin mínimo que abre la tabla de atributos de la capa activa en el **panel lateral** como `QDockWidget` acoplado a la derecha.
 
+**v1.4 — agrupación en pestañas:** si ya hay otro dock de tabla de atributos visible en el panel derecho, el nuevo se integra como **pestaña** del grupo (`tabifyDockWidget`) en lugar de apilarse. Solo tabifica con docks que tengan capa asociada — docks sin capa (p. ej. el Exportador, que gestiona el suyo en `run()`) quedan como docks independientes salvo arrastre manual.
+
 ```text
 tabla_lateral/
-├── metadata.txt   # version=1.2, changelog, about, tracker
+├── metadata.txt   # version=1.4, changelog, about, tracker
 ├── __init__.py    # classFactory() → TablaLateralPlugin
-├── main.py        # Lógica + VERSION = "1.2"; acción, dock, atajo Alt+T
+├── main.py        # Lógica + VERSION = "1.4"; acción, dock, atajo Alt+T
 ├── icon.svg       # Icono vectorial del plugin
 └── README.md      # Doc del plugin
 ```
@@ -177,4 +180,4 @@ powershell -File ..\Tools\package-plugin.ps1 -PluginName "ExportadorRedes_Beta"
 
 ---
 
-*Última actualización: 2026-11-20*
+*Última actualización: 2026-11-22 — ROADMAP.md creado; versiones sincronizadas (ExportadorRedes_Beta 0.17.51, tabla_lateral 1.4).*

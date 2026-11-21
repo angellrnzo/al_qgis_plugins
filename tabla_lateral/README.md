@@ -1,6 +1,6 @@
 # Tabla Lateral
 
-**Versión:** 1.2 · **Requisito:** QGIS ≥ 3.0 · **Autor:** [angellrnzo](https://github.com/angellrnzo)
+**Versión:** 1.4 · **Requisito:** QGIS ≥ 3.0 · **Autor:** [angellrnzo](https://github.com/angellrnzo)
 
 Plugin minimalista que abre la **tabla de atributos** de la capa vectorial activa directamente en el **panel lateral** de QGIS, como `QDockWidget` acoplado a la derecha — sin ventana flotante que tape el lienzo.
 
@@ -17,7 +17,7 @@ Plugin minimalista que abre la **tabla de atributos** de la capa vectorial activ
 ## Instalación
 
 **Opción A — Desde ZIP:**
-1. Genera el paquete con `Tools\package-plugin.bat` del Workspace (o comprime la carpeta manualmente). El zip se nombra `tabla_lateral-v1.2.zip`.
+1. Genera el paquete con `Tools\package-plugin.bat` del Workspace (o comprime la carpeta manualmente). El zip se nombra `tabla_lateral-v1.4.zip`.
 2. En QGIS: **Plugins → Manage and Install Plugins → Install from ZIP**.
 
 **Opción B — Manual:**
@@ -41,7 +41,7 @@ Plugin minimalista que abre la **tabla de atributos** de la capa vectorial activ
 
 ```text
 tabla_lateral/
-├── metadata.txt   # name, version=1.2, qgisMinimumVersion=3.0, changelog
+├── metadata.txt   # name, version=1.4, qgisMinimumVersion=3.0, changelog
 ├── __init__.py    # classFactory() → TablaLateralPlugin
 ├── main.py        # Lógica: acción, dock widget, atajo Alt+T
 └── icon.svg       # Icono del plugin (barra de herramientas y gestor)
