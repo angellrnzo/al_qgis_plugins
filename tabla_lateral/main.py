@@ -2,6 +2,9 @@ from qgis.core import QgsMapLayerType
 from qgis.PyQt.QtCore import Qt
 from qgis.PyQt.QtWidgets import QDockWidget, QAction
 
+VERSION = "1.1"
+
+
 class TablaLateralPlugin:
     def __init__(self, iface):
         self.iface = iface

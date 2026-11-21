@@ -1,8 +1,8 @@
-# Exportador de Redes Pro — Beta 0.16
+# Exportador de Redes Pro — Beta 0.17.47
 
 Plugin QGIS que prepara el proyecto, genera cuadrículas de recortes, aplica estilos QML y exporta planos en PNG/JPG y PDF para redes de **Abastecimiento** y **Saneamiento**.
 
-> ⚠️ **Versión BETA** — pensada para pruebas en paralelo con la 0.14.26 estable. No sustituyas la versión de producción hasta haber validado el flujo completo en tus proyectos reales.
+> ⚠️ **Versión BETA** — valida el flujo completo en tus proyectos reales antes de sustituir la versión de producción. Historial completo en `CHANGELOG.md`.
 
 ---
 
@@ -30,11 +30,11 @@ C:\Users<usuario>\AppData\Roaming\QGIS\QGIS3\profiles\default\python\plugins\
 2. Cierra QGIS por completo (verifica que no quede `qgis-bin.exe` en el Administrador de tareas).
 3. Abre QGIS.
 4. Ve a **Complementos → Administrar e instalar complementos → Instalados**.
-5. Activa **"Exportador de Redes Pro (Beta 0.16)"**.
+5. Activa **"Exportador de Redes Pro (Beta 0.17.47)"**.
 
 ### Opción B — Instalación desde ZIP
 
-1. Genera el `.zip` con el script `build_zip.bat` (ver más abajo).
+1. Genera el `.zip` con `Tools\package-plugin.bat` del Workspace (el nombre del archivo incluye la versión, p. ej. `ExportadorRedes_Beta-v0.17.47-<timestamp>.zip`).
 2. En QGIS: **Complementos → Administrar e instalar complementos → Instalar desde ZIP**.
 3. Selecciona el `.zip` generado y pulsa **Instalar complemento**.
 4. Activa el plugin en la pestaña **Instalados**.
@@ -60,16 +60,20 @@ C:\Users<usuario>\AppData\Roaming\QGIS\QGIS3\profiles\default\python\plugins\
 4. **Pestaña 1 — Preparación**
 - Pulsa **↺ RESTAURAR PROYECTO** al terminar.
 
-Los archivos se guardan en:
-ExportadorRedes_Beta/
-├── metadata.txt Metadatos del plugin (nombre, versión, autor)
-├── init.py Punto de entrada (classFactory)
-├── exportador_plugin.py Código principal (~1500 líneas)
-├── README.md Este archivo
-├── CHANGELOG.md Historial de versiones
-├── LICENSE.txt Licencia
-├── icon.png Icono de la barra de herramientas
-└── logos_feder.png Logo FEDER para el modo cofinanciación
+Los archivos se guardan en `ExportadorRedes_Beta/`:
+
+```text
+├── metadata.txt          # Metadatos del plugin (nombre, versión=0.17.47, autor)
+├── __init__.py           # Punto de entrada (classFactory + VERSION)
+├── exportador_plugin.py  # Código principal (~3300 líneas)
+├── README.md             # Este archivo
+├── CHANGELOG.md          # Historial de versiones
+├── LICENSE.txt           # Licencia
+├── icon.png              # Icono de la barra de herramientas
+├── estilos/              # Estilos QML de impresión (recortes, potables, saneamiento)
+├── logos_generales/      # logo_dielmo.png + logos_feder.png (cofinanciación FEDER)
+└── logos_municipios/     # ~80 escudos municipales para portadas de planos
+```
 
 
 ---

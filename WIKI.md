@@ -81,18 +81,22 @@ ExportadorRedes_Beta/
 
 ## 3. Plugin: Tabla Lateral
 
-**Versión:** 1.0 · **Requisito:** QGIS ≥ 3.0
+**Versión:** 1.1 · **Requisito:** QGIS ≥ 3.0 · **Icono:** `icon.svg`
 
-Plugin mínimo (~3 archivos): abre la tabla de atributos de la capa activa en el **panel lateral** en lugar de como ventana flotante.
+Plugin mínimo que abre la tabla de atributos de la capa activa en el **panel lateral** como `QDockWidget` acoplado a la derecha.
 
 ```text
 tabla_lateral/
-├── metadata.txt
-├── __init__.py
-└── main.py                   # Provider del panel lateral
+├── metadata.txt   # version=1.1, changelog, about, tracker
+├── __init__.py    # classFactory() → TablaLateralPlugin
+├── main.py        # Lógica + VERSION = "1.1"; acción, dock, atajo Alt+T
+├── icon.svg       # Icono vectorial del plugin
+└── README.md      # Doc del plugin
 ```
 
-Útil para trabajo con tablas anchas o en monitores pequeños.
+**Comportamiento:** `ejecutar()` obtiene `iface.activeLayer()`, valida `QgsMapLayerType.VectorLayer`, llama `iface.showAttributeTable(capa)` y re-acopla el `QDockWidget` resultante a `Qt.RightDockWidgetArea` buscando el dock por nombre de capa. Sin capa vectorial → `messageBar().pushWarning`.
+
+**Atajos:** `Alt+T` (registrado vía `registerMainWindowAction`).
 
 ---
 
@@ -141,7 +145,13 @@ powershell -File ..\Tools\package-plugin.ps1 -PluginName "ExportadorRedes_Beta"
 ..\Tools\package-plugin.bat
 ```
 
-**Salida:** `al_qgis_plugins/dist/<Plugin>-<yyyyMMdd-HHmmss>.zip` — contiene el **contenido** de la carpeta (sin la carpeta padre), que es lo que QGIS espera al instalar desde ZIP.
+**Salida:** `al_qgis_plugins/dist/<Plugin>-v<X.Y.Z>-<yyyyMMdd-HHmmss>.zip` — el script lee `version=` de `metadata.txt` y lo incrusta en el nombre. El zip contiene el **contenido** de la carpeta (sin la carpeta padre), que es lo que QGIS espera al instalar desde ZIP.
+
+**Convención de versionado:**
+1. Subir `version=` en `metadata.txt` + constante `VERSION` en el código de entrada.
+2. Registrar el cambio en `CHANGELOG.md` / `changelog=` del metadata.
+3. Generar el zip — el nombre resultante identifica el build (`-v1.1-`).
+4. QGIS muestra la versión del `metadata.txt` en *Manage and Install Plugins → Installed*, por lo que cada instalación desde ZIP es trazable.
 
 `dist/` está cubierto por `.gitignore`; los zips no se versionan.
 
