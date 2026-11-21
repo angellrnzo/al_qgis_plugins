@@ -1,0 +1,7 @@
+[general]
+name=Tabla Lateral
+qgisMinimumVersion=3.0
+description=Abre la tabla de atributos en el panel lateral
+version=1.0
+author=Usuario
+email=usuario@local.com

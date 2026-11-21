@@ -1,0 +1,18 @@
+[general]
+name=Exportador de Redes Pro (Beta 0.17.47)
+qgisMinimumVersion=3.30
+description=Prepara el proyecto, genera cuadrículas y exporta planos (PNG, JPG y PDF) de Abastecimiento y Saneamiento de forma automática.
+version=0.17.47
+changelog=
+    0.17.47 - BETA. Selector de idioma (Catalán / Español) para el texto legal de cofinanciación FEDER en la primera página del PDF.
+    0.17.46 - BETA. Detección automática del logotipo municipal desde atributos o carpeta del proyecto; fijación de ruta de respaldos QML en el .qgz, historial de carpetas recientes y limpieza completa de menú y señales al descargar el plugin.
+    0.17.45 - BETA. Si hay más de una capa satelital/ortofoto al preparar el proyecto, las apaga todas y avisa para marcarla manualmente en el panel de capas; si solo hay una, la activa al 60% con normalidad.
+    0.17.44 - BETA. Normalización de nombres de municipio con artículos pospuestos y corrección del botón DETENER EXPORTACIÓN.
+    0.17.43 - BETA. Resoluciones DPI independientes para planos generales, leyendas y detalles; soporte para exportación en formato JPG ligero además de PNG.
+author=angellrnzo
+email=tu_correo@ejemplo.com
+about=Herramienta para automatizar la preparación, el recorte y la exportación de proyectos de redes (Potable y Saneamiento). Versión BETA 0.17.47.
+tracker=
+repository=
+category=Raster
+hasProcessingProvider=False
