@@ -5,7 +5,7 @@ from qgis.PyQt.QtCore import Qt
 from qgis.PyQt.QtGui import QIcon
 from qgis.PyQt.QtWidgets import QDockWidget, QAction
 
-VERSION = "1.2"
+VERSION = "1.3"
 
 
 class TablaLateralPlugin:
