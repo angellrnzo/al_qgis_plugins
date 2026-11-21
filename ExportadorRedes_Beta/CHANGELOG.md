@@ -7,6 +7,14 @@ Versionado según [SemVer](https://semver.org/lang/es/).
 
 ---
 
+## [0.17.49] — 2026-11-20 — BETA
+
+### Cambiado
+- **Acordeón "Módulos de Exportación" plegado por defecto**: la pestaña Exportar abre compacta (botón `▶`); el usuario despliega la selección solo cuando la necesita. Mismo patrón que "Capas Extra" en Preparación.
+- **Resumen único de capas auxiliares ocultadas**: antes se emitía un WARNING por cada capa oculta por keyword (~30 líneas de log); ahora un solo WARNING indica el total y hasta 10 nombres, con el recordatorio de Capas Extra.
+
+---
+
 ## [0.17.48] — 2026-11-20 — BETA
 
 > Nota: las entradas 0.17.0–0.17.47 solo estaban documentadas en `metadata.txt` (`changelog=`); a partir de aquí se retoma este archivo.

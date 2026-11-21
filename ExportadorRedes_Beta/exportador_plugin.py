@@ -18,7 +18,7 @@ from datetime import datetime
 try:
     from . import VERSION
 except ImportError:  # ejecución directa del archivo fuera del paquete
-    VERSION = '0.17.48'
+    VERSION = '0.17.49'
 
 from qgis.PyQt.QtWidgets import (
     QAction, QDockWidget, QVBoxLayout, QHBoxLayout, QGridLayout, QLabel,
@@ -1186,6 +1186,7 @@ class ExportadorRedesDockWidget(QDockWidget):
             tiene_google_sat = any(n.name().strip().lower() == 'google satellite' for n in nodos_orto)
             hay_varias_orto = len(nodos_orto) > 1
             nombres_orto_apagadas = []
+            aux_ocultadas = []
 
             for nodo in root.findGroups(recursive=True) + root.findLayers():
                 nombre = nodo.name()
@@ -1292,10 +1293,18 @@ class ExportadorRedesDockWidget(QDockWidget):
                 set_visible(nodo, False)
 
                 if tipo in ('aux_mdt', 'aux_kw'):
-                    self.log_message(
-                        f"Capa ocultada por keyword ({tipo}): '{nombre}'. Si no debía ocultarse, revisa AUX_KEYWORDS/MDT_KEYWORDS.",
-                        "WARNING"
-                    )
+                    aux_ocultadas.append((tipo, nombre))
+
+            if aux_ocultadas:
+                nombres_aux = [n for _, n in aux_ocultadas]
+                muestra = ", ".join(f"'{n}'" for n in nombres_aux[:10])
+                if len(nombres_aux) > 10:
+                    muestra += f" y {len(nombres_aux) - 10} más"
+                self.log_message(
+                    f"Se ocultaron {len(nombres_aux)} capas auxiliares por keyword ({muestra}). "
+                    "Si alguna no debía ocultarse, revisa AUX_KEYWORDS/MDT_KEYWORDS o márcala en «Capas Extra» para mantenerla visible.",
+                    "WARNING"
+                )
 
             # Filtro de acometidas en tuberías principales
             for layer_name in ('111_Trams_Potable', '211_Trams_Sanejament'):
@@ -2150,7 +2159,7 @@ class ExportadorRedesDockWidget(QDockWidget):
         layout.addLayout(row_fmt)
 
         # --- Botón de acordeón para Módulos de Exportación ---
-        self.btn_toggle_modulos = QPushButton("▼ Módulos de Exportación (Selección)")
+        self.btn_toggle_modulos = QPushButton("▶ Módulos de Exportación (Selección)")
         self.btn_toggle_modulos.setStyleSheet(
             "QPushButton { text-align: left; font-weight: bold; background-color: #F0F0F0; border: 1px solid #CCC; padding: 6px; border-radius: 4px; }"
             "QPushButton:hover { background-color: #E0E0E0; }"
@@ -2183,7 +2192,7 @@ class ExportadorRedesDockWidget(QDockWidget):
         self.btn_run_all.clicked.connect(self.run_modulos)
         lay_modulos.addWidget(self.btn_run_all)
 
-        self.widget_modulos_exportacion.setVisible(True)
+        self.widget_modulos_exportacion.setVisible(False)
         layout.addWidget(self.widget_modulos_exportacion)
 
         grupo_img = QGroupBox("Pasos Individuales")
