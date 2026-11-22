@@ -1,4 +1,5 @@
 <!-- markdownlint-disable MD024 -->
+
 # Changelog — Exportador de Redes Pro
 
 Todas las versiones notables del plugin, con foco en los cambios de comportamiento.
