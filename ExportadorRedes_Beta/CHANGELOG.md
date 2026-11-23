@@ -9,6 +9,39 @@ Versionado según [SemVer](https://semver.org/lang/es/).
 
 ---
 
+## [0.17.55] — 2026-11-23 — BETA
+
+### Cambiado
+
+- **Capa de notas rediseñada**: "Preparar Archivo Base (Notas)" ya no crea grupos `FieldPreparer/Revisados` ni una memory layer. Ahora genera `Notas_<municipio>.gpkg` **en la carpeta del proyecto** (mismo nivel que el `.qgz`), lo carga como capa OGR persistente y editable en la **raíz del índice de capas**, fuera de los grupos Potable/Saneamiento. Campos: `id` (entero) + `Notas` (texto, 260 caracteres). Mantiene el estilo `QML_NOTAS`.
+- **Detección tolerante a renombres**: si ya existe una capa cuyo nombre empiece por `notas_<municipio>` (p. ej. renombrada a mano con sufijos), el plugin la detecta, avisa y **no la crea ni la modifica**.
+
+---
+
+## [0.17.54] — 2026-11-23 — BETA
+
+### Cambiado
+
+- **Polígono CNIG sin shapefile**: se elimina la exportación a ESRI Shapefile (generaba `.shp`/`.shx`/`.dbf`/`.prj`/`.cpg`). Ahora solo produce `<municipio>_CNIG.gpkg` (capa persistente en el proyecto) y `<municipio>_CNIG.kml`, manteniendo `PDFs_Exportacion/` limpia.
+
+---
+
+## [0.17.53] — 2026-11-23 — BETA
+
+### Cambiado
+
+- **Polígono CNIG persistente**: el polígono de ámbito municipal ahora sigue el mismo flujo que `RecortesPDF` — se guarda como `<municipio>_CNIG.gpkg` en `PDFs_Exportacion/` y se carga al proyecto como capa OGR persistente (ya no es una capa temporal en memoria). Se aplica el estilo propio `estilos/municipio_cnig.qml` si existe; como fallback se usa `recortes.qml` con las etiquetas desactivadas. Solo se exporta `.kml` además del GPKG (sin shapefile, para no llenar la carpeta de archivos auxiliares).
+
+---
+
+## [0.17.52] — 2026-11-23 — BETA
+
+### Añadido
+
+- **Polígono de ámbito municipal (SHP + KML)**: nueva sección en la pestaña *Cuadrícula*. Genera un único polígono rectangular que abarca todas las capas vectoriales de los grupos *Potable* y *Saneamiento*, con margen exterior opcional de 0, 5 o 10 m (se recuerda la última elección). Crea la capa `<municipio>_CNIG` en el proyecto (nombre del municipio detectado) y exporta `<municipio>_CNIG.shp` + `<municipio>_CNIG.kml` en la carpeta de exportación. Abort a propósito si el lienzo está en un CRS geográfico, para que el margen en metros sea correcto.
+
+---
+
 ## [0.17.51] — 2026-11-20 — BETA
 
 ### Añadido

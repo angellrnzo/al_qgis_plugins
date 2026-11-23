@@ -958,7 +958,7 @@ class ExportadorRedesDockWidget(QDockWidget):
         lay_estilos.addWidget(self.btn_restore_original_qml)
 
         self.btn_preparar_notas = QPushButton("🗂️ Preparar Archivo Base (Notas)")
-        self.btn_preparar_notas.setToolTip("Crea la capa 'Notas' y los grupos 'FieldPreparer' > 'Revisados' al inicio del proyecto.")
+        self.btn_preparar_notas.setToolTip("Crea la capa persistente 'Notas_<municipio>' (GPKG en la carpeta del proyecto) en la raíz del índice de capas.")
         self.btn_preparar_notas.setStyleSheet(estilo_btn_sec)
         self.btn_preparar_notas.clicked.connect(self.preparar_archivo_notas)
         lay_estilos.addWidget(self.btn_preparar_notas)
@@ -1012,52 +1012,92 @@ class ExportadorRedesDockWidget(QDockWidget):
         return ''.join(c for c in t if not unicodedata.combining(c))
 
     def preparar_archivo_notas(self):
-        root = QgsProject.instance().layerTreeRoot()
-        existe_capa_nota = False
-        for child in root.children():
-            if isinstance(child, QgsLayerTreeLayer):
-                nombre = child.name().lower()
-                if nombre == "notas" or nombre.startswith("nota"):
-                    existe_capa_nota = True
-                    self.log_message(f"Capa similar encontrada: '{child.name()}'. No se creará una nueva.", "INFO")
-                    break
-
-        if root.findGroup('FieldPreparer'):
-            QMessageBox.warning(self, "Ya existe", "El grupo 'FieldPreparer' ya está en el proyecto.")
+        if not QgsProject.instance().absolutePath():
+            QMessageBox.warning(self, "Proyecto no guardado", "Debes guardar el proyecto de QGIS primero.")
             return
 
-        grupo_principal = QgsLayerTreeGroup('FieldPreparer')
-        subgrupo_revisados = QgsLayerTreeGroup('Revisados')
+        muni = self._obtener_municipio_archivo()
+        nombre_capa = f"Notas_{muni}"
+        crs_canvas = self.iface.mapCanvas().mapSettings().destinationCrs()
 
-        if not existe_capa_nota:
-            self.log_message("No se encontró capa existente. Creando nueva capa 'Notas'...", "INFO")
-            for lyr in QgsProject.instance().mapLayersByName("Notas"):
-                QgsProject.instance().removeMapLayer(lyr.id())
+        # ¿Ya existe una capa de notas? Se detecta por el prefijo
+        # 'Notas_<municipio>' (el usuario puede renombrarla añadiendo
+        # sufijos a mano; no se toca).
+        prefijo_notas = f"notas_{muni}".lower()
+        existente = None
+        for lyr in QgsProject.instance().mapLayers().values():
+            if lyr.name().lower().startswith(prefijo_notas):
+                existente = lyr
+                break
+        if existente:
+            self.log_message(f"Ya existe una capa de notas: '{existente.name()}'. No se crea ni se modifica.", "INFO")
+            QMessageBox.information(
+                self, "Ya existe",
+                f"Ya hay una capa de notas en el proyecto:\n'{existente.name()}'\n\nNo se ha creado ni modificado nada."
+            )
+            return
 
-            crs = self.iface.mapCanvas().mapSettings().destinationCrs().authid()
-            capa_notas = QgsVectorLayer(f"Polygon?crs={crs}", "Notas", "memory")
-            pr = capa_notas.dataProvider()
-            pr.addAttributes([QgsField("id", TYPE_INT), QgsField("Notas", TYPE_QSTRING)])
-            capa_notas.updateFields()
+        # Capa temporal con los campos finales
+        capa_tmp = QgsVectorLayer(f"Polygon?crs={crs_canvas.authid()}", f"{nombre_capa}_tmp", "memory")
+        pr = capa_tmp.dataProvider()
+        pr.addAttributes([QgsField("id", TYPE_INT), QgsField("Notas", TYPE_QSTRING, len=260)])
+        capa_tmp.updateFields()
 
-            doc = QDomDocument()
+        doc = QDomDocument()
+        if self._qdom_set_content(doc, QML_NOTAS):
+            ok_st, err_st = self._aplicar_dom_style(capa_tmp, doc)
+            if not ok_st and err_st:
+                self.log_message(f"Aviso aplicando estilo QML_NOTAS: {err_st}", "WARNING")
+        else:
+            self.log_message("QML_NOTAS inválido, capa creada sin estilo.", "WARNING")
+
+        # GPKG en la carpeta del proyecto (mismo nivel que el .qgz)
+        project_dir = QgsProject.instance().absolutePath()
+        gpkg_path = os.path.join(project_dir, f"{nombre_capa}.gpkg")
+
+        if os.path.exists(gpkg_path):
+            try:
+                os.remove(gpkg_path)
+            except Exception as e:
+                self.log_message(f"No se pudo borrar el GPKG anterior: {e}", "ERROR")
+                QMessageBox.warning(self, "Archivo bloqueado", "El archivo está siendo usado por otro programa. Ciérralo y vuelve a intentarlo.")
+                return
+
+        options = QgsVectorFileWriter.SaveVectorOptions()
+        options.driverName = "GPKG"
+        options.layerName = nombre_capa
+        options.actionOnExistingFile = QgsVectorFileWriter.CreateOrOverwriteFile
+        options.fileEncoding = "UTF-8"
+
+        transform_context = QgsProject.instance().transformContext()
+        res = QgsVectorFileWriter.writeAsVectorFormatV3(capa_tmp, gpkg_path, transform_context, options)
+        if isinstance(res, tuple):
+            err_code, err_msg = res[0], res[1] if len(res) > 1 else ""
+        else:
+            err_code, err_msg = res, ""
+
+        if err_code != QgsVectorFileWriter.NoError:
+            self.log_message(f"Error al guardar el GPKG de notas: {err_msg} ({err_code})", "ERROR")
+            QMessageBox.critical(self, "Error", f"No se pudo guardar la capa de notas en el disco:\n{err_msg}")
+            return
+
+        # Cargar la capa persistente a la raíz del índice de capas
+        uri = f"{gpkg_path}|layername={nombre_capa}"
+        capa_notas = QgsVectorLayer(uri, nombre_capa, "ogr")
+
+        if capa_notas.isValid():
             if self._qdom_set_content(doc, QML_NOTAS):
                 ok_st, err_st = self._aplicar_dom_style(capa_notas, doc)
                 if not ok_st and err_st:
                     self.log_message(f"Aviso aplicando estilo QML_NOTAS: {err_st}", "WARNING")
-            else:
-                self.log_message("QML_NOTAS inválido, capa creada sin estilo.", "WARNING")
-
-            QgsProject.instance().addMapLayer(capa_notas, False)
-            subgrupo_revisados.addChildNode(QgsLayerTreeLayer(capa_notas))
+            QgsProject.instance().addMapLayer(capa_notas)
+            self.log_message(f"Capa de notas creada y cargada: {os.path.basename(gpkg_path)}", "SUCCESS")
         else:
-            self.log_message("Se mantiene la capa existente donde está. Los grupos se crearán vacíos.", "INFO")
-
-        grupo_principal.addChildNode(subgrupo_revisados)
-        root.insertChildNode(0, grupo_principal)
+            self.log_message("Error al cargar la capa de notas desde el GPKG.", "WARNING")
+            QgsProject.instance().addMapLayer(capa_tmp)
 
         self.iface.mapCanvas().refreshAllLayers()
-        QMessageBox.information(self, "Éxito", "Estructura 'FieldPreparer/Revisados' preparada correctamente.")
+        QMessageBox.information(self, "Éxito", f"Capa '{nombre_capa}' creada y cargada en la raíz del proyecto.\nArchivo: {gpkg_path}")
 
     def preparar_proyecto_completo(self):
         backup_existe = any(v is not None for v in self.estilos_originales.values()) or len(self._visibilidad_backup) > 0
@@ -1838,6 +1878,40 @@ class ExportadorRedesDockWidget(QDockWidget):
         btn_generar.setStyleSheet("QPushButton { background-color: #9C27B0; color: white; font-weight: bold; padding: 10px; border-radius: 4px; }")
         btn_generar.clicked.connect(self.generar_cuadricula)
         layout.addWidget(btn_generar)
+
+        grupo_poligono = QGroupBox("Polígono de ámbito municipal (GPKG + KML)")
+        lay_poly = QVBoxLayout()
+        lay_poly.setSpacing(8)
+
+        lbl_poly = QLabel(
+            "Crea un único polígono rectangular que abarca las redes de "
+            "<b>Potable</b> y <b>Saneamiento</b>, con un margen opcional hacia afuera. "
+            "Se guarda como capa '<b>&lt;municipio&gt;_CNIG</b>' en el proyecto y como archivos "
+            "<b>.gpkg</b> y <b>.kml</b> en la carpeta de exportación."
+        )
+        lbl_poly.setWordWrap(True)
+        lbl_poly.setStyleSheet("color: #666; font-size: 11px;")
+        lay_poly.addWidget(lbl_poly)
+
+        row_poly = QHBoxLayout()
+        row_poly.addWidget(QLabel("Margen exterior:"))
+        self.cmb_buffer_muni = QComboBox()
+        self.cmb_buffer_muni.addItems(["Sin margen (0 m)", "5 m", "10 m"])
+        try:
+            self.cmb_buffer_muni.setCurrentIndex(int(self.settings.value("PluginExportador/buffer_muni", 1)))
+        except (ValueError, TypeError):
+            pass
+        self.cmb_buffer_muni.setToolTip("Margen en metros hacia afuera del rectángulo que abarca ambas redes.")
+        row_poly.addWidget(self.cmb_buffer_muni)
+        lay_poly.addLayout(row_poly)
+
+        self.btn_poly_kml = QPushButton("📐 CREAR POLÍGONO '<municipio>_CNIG' (GPKG + KML)")
+        self.btn_poly_kml.setToolTip("Genera el polígono rectangular de ámbito municipal, lo guarda como GPKG y lo exporta a KML en la carpeta de exportación del proyecto.")
+        self.btn_poly_kml.clicked.connect(self.crear_poligono_municipio_kml)
+        lay_poly.addWidget(self.btn_poly_kml)
+
+        grupo_poligono.setLayout(lay_poly)
+        layout.addWidget(grupo_poligono)
         layout.addStretch()
 
         scroll.setWidget(content_widget)
@@ -2112,6 +2186,177 @@ class ExportadorRedesDockWidget(QDockWidget):
         except Exception as e:
             self.log_message(f"Error al generar cuadrícula: {str(e)}", "ERROR")
             QMessageBox.critical(self, "Error", f"Ocurrió un error:\n{str(e)}")
+
+    def crear_poligono_municipio_kml(self):
+        if not QgsProject.instance().absolutePath():
+            QMessageBox.warning(self, "Proyecto no guardado", "Debes guardar el proyecto de QGIS primero.")
+            return
+
+        crs_canvas = self.iface.mapCanvas().mapSettings().destinationCrs()
+        if crs_canvas.isGeographic():
+            QMessageBox.warning(
+                self, "CRS no proyectado",
+                "El lienzo está en un CRS geográfico (grados). Cambia a una proyección métrica "
+                "(p. ej. EPSG:25831) para que el margen en metros sea correcto."
+            )
+            return
+
+        root = QgsProject.instance().layerTreeRoot()
+        ext_total = QgsRectangle()
+        ext_total.setMinimal()
+        capas_usadas = 0
+
+        for nombre_grupo in (self.GRUPO_POTABLE, self.GRUPO_SANEA):
+            grupo = root.findGroup(nombre_grupo)
+            if not grupo:
+                continue
+            for n in grupo.findLayers():
+                lyr = n.layer()
+                if not lyr or lyr.type() != QgsMapLayer.VectorLayer:
+                    continue
+                ext_t = self._extent_en_crs_canvas(lyr, crs_canvas)
+                if ext_t:
+                    ext_total.combineExtentWith(ext_t)
+                    capas_usadas += 1
+
+        if ext_total.isEmpty() or capas_usadas == 0:
+            self.log_message("No se encontraron capas vectoriales en los grupos Potable/Saneamiento.", "WARNING")
+            QMessageBox.warning(self, "Sin datos", "No se encontraron capas de redes en los grupos Potable y Saneamiento.")
+            return
+
+        margen = (0, 5, 10)[min(self.cmb_buffer_muni.currentIndex(), 2)]
+        self.settings.setValue("PluginExportador/buffer_muni", self.cmb_buffer_muni.currentIndex())
+
+        rect = QgsRectangle(
+            ext_total.xMinimum() - margen,
+            ext_total.yMinimum() - margen,
+            ext_total.xMaximum() + margen,
+            ext_total.yMaximum() + margen,
+        )
+        geom = QgsGeometry.fromRect(rect)
+
+        muni = self._obtener_municipio_archivo()
+        nombre_capa = f"{muni}_CNIG"
+
+        # --- Capa temporal (mismo patrón que RecortesPDF) ---
+        capa_tmp = QgsVectorLayer(f"Polygon?crs={crs_canvas.authid()}", f"{nombre_capa}_tmp", "memory")
+        pr = capa_tmp.dataProvider()
+        pr.addAttributes([QgsField("id", TYPE_INT), QgsField("nombre", TYPE_QSTRING)])
+        capa_tmp.updateFields()
+        feat = QgsFeature()
+        feat.setGeometry(geom)
+        feat.setAttributes([1, nombre_capa])
+        pr.addFeature(feat)
+
+        # --- Estilo: municipio_cnig.qml propio si existe; si no, recortes.qml sin etiquetas ---
+        qml_custom = ""
+        ruta_cnig = os.path.join(DIR_ESTILOS_LOCAL, "municipio_cnig.qml")
+        ruta_recortes = os.path.join(DIR_ESTILOS_LOCAL, "recortes.qml")
+        ruta_estilo = ruta_cnig if os.path.exists(ruta_cnig) else ruta_recortes
+        if os.path.exists(ruta_estilo):
+            try:
+                with open(ruta_estilo, "r", encoding="utf-8") as f:
+                    qml_custom = f.read()
+                if ruta_estilo == ruta_recortes:
+                    qml_custom = re.sub(r'labelsEnabled="[^"]*"', 'labelsEnabled="0"', qml_custom, count=1)
+            except Exception as e:
+                self.log_message(f"Error al leer estilo QML: {e}", "ERROR")
+
+        doc = QDomDocument()
+        if qml_custom and self._qdom_set_content(doc, qml_custom):
+            self._aplicar_dom_style(capa_tmp, doc)
+
+        # --- Guardar GPKG persistente (misma carpeta que RecortesPDF) ---
+        base_dir = self.get_output_dir()
+        if not base_dir:
+            QgsProject.instance().addMapLayer(capa_tmp)
+            return
+
+        for vieja in QgsProject.instance().mapLayersByName(nombre_capa):
+            QgsProject.instance().removeMapLayer(vieja.id())
+        for vieja in QgsProject.instance().mapLayersByName("Municipio_CNIG"):
+            QgsProject.instance().removeMapLayer(vieja.id())
+
+        gpkg_path = os.path.join(base_dir, f"{nombre_capa}.gpkg")
+        if os.path.exists(gpkg_path):
+            try:
+                os.remove(gpkg_path)
+            except Exception as e:
+                self.log_message(f"No se pudo borrar el GPKG anterior: {e}", "ERROR")
+                QMessageBox.warning(self, "Archivo bloqueado", "El archivo está siendo usado por otro programa. Ciérralo y vuelve a intentarlo.")
+                return
+
+        options = QgsVectorFileWriter.SaveVectorOptions()
+        options.driverName = "GPKG"
+        options.layerName = nombre_capa
+        options.actionOnExistingFile = QgsVectorFileWriter.CreateOrOverwriteFile
+        options.fileEncoding = "UTF-8"
+
+        transform_context = QgsProject.instance().transformContext()
+        res = QgsVectorFileWriter.writeAsVectorFormatV3(capa_tmp, gpkg_path, transform_context, options)
+        if isinstance(res, tuple):
+            err_code, err_msg = res[0], res[1] if len(res) > 1 else ""
+        else:
+            err_code, err_msg = res, ""
+
+        if err_code != QgsVectorFileWriter.NoError:
+            self.log_message(f"Error al guardar el GPKG: {err_msg} ({err_code})", "ERROR")
+            QMessageBox.critical(self, "Error", f"No se pudo guardar el polígono en el disco:\n{err_msg}")
+            QgsProject.instance().addMapLayer(capa_tmp)
+            return
+
+        # --- Cargar la capa persistente desde el GPKG (como RecortesPDF) ---
+        uri = f"{gpkg_path}|layername={nombre_capa}"
+        capa_poly = QgsVectorLayer(uri, nombre_capa, "ogr")
+
+        if capa_poly.isValid():
+            if qml_custom and self._qdom_set_content(doc, qml_custom):
+                self._aplicar_dom_style(capa_poly, doc)
+            QgsProject.instance().addMapLayer(capa_poly)
+            capa_export = capa_poly
+            self.log_message(f"Polígono guardado y cargado: {os.path.basename(gpkg_path)}", "SUCCESS")
+        else:
+            self.log_message("Error al cargar la capa desde el GPKG.", "WARNING")
+            QgsProject.instance().addMapLayer(capa_tmp)
+            capa_export = capa_tmp
+
+        self.log_message(f"Capa '{nombre_capa}' creada con {capas_usadas} capas de red y margen de {margen} m.", "INFO")
+
+        # --- Exportar KML ---
+        todo_ok = True
+        for driver, ext in (("KML", ".kml"),):
+            out_path = os.path.join(base_dir, f"{nombre_capa}{ext}")
+            if os.path.exists(out_path):
+                try:
+                    os.remove(out_path)
+                except Exception as e:
+                    self.log_message(f"No se pudo borrar {os.path.basename(out_path)}: {e}", "WARNING")
+
+            options = QgsVectorFileWriter.SaveVectorOptions()
+            options.driverName = driver
+            options.layerName = nombre_capa
+            options.actionOnExistingFile = QgsVectorFileWriter.CreateOrOverwriteFile
+            options.fileEncoding = "UTF-8"
+
+            res = QgsVectorFileWriter.writeAsVectorFormatV3(capa_export, out_path, transform_context, options)
+            if isinstance(res, tuple):
+                err_code = res[0]
+            else:
+                err_code = res
+
+            if err_code == QgsVectorFileWriter.NoError:
+                self.log_message(f"Exportado: {out_path}", "INFO")
+            else:
+                todo_ok = False
+                self.log_message(f"Error exportando {driver} (código {err_code}).", "ERROR")
+
+        if todo_ok:
+            QMessageBox.information(
+                self, "Listo",
+                f"Polígono '{nombre_capa}' creado y exportado en:\n{base_dir}"
+            )
+        else:
+            QMessageBox.warning(self, "Exportación parcial", f"El polígono '{nombre_capa}' se creó, pero alguno de los archivos no se pudo exportar. Revisa el log.")
 
     def setup_tab_exportador(self):
         outer_layout = QVBoxLayout(self.tab_exportador)
