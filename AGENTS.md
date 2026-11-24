@@ -17,6 +17,9 @@ globales de `../AGENTS.md`.
   `powershell -ExecutionPolicy Bypass -File ..\Tools\package-plugin.ps1 -PluginName "<carpeta>"`
   → genera `dist/<Plugin>-v<X.Y.Z>.zip` (conserva los 3 builds más recientes).
 - Verificación mínima tras editar Python: `python -m py_compile <archivo>`.
+- **Tras empaquetar, actualizar la memoria general antes de cerrar:** la
+  sección `al_qgis_plugins` de `../HANDOFF.md` (versión, nombre del zip en
+  `dist/`, qué probar en QGIS). El usuario dirá "chequea" para verificar.
 
 ## Convenciones del ExportadorRedes_Beta
 
