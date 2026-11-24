@@ -43,7 +43,7 @@ from qgis.core import (
     QgsLayerTreeLayer, QgsLayerTreeGroup,
     QgsCoordinateTransform,
     QgsMapLayer, Qgis, QgsVectorFileWriter, QgsSpatialIndex,
-    QgsMapLayerLegendUtils, QgsMessageLog,
+    QgsMapLayerLegendUtils, QgsMessageLog, QgsCoordinateReferenceSystem,
 )
 
 # ============================================================
@@ -1056,6 +1056,16 @@ class ExportadorRedesDockWidget(QDockWidget):
         gpkg_path = os.path.join(project_dir, f"{nombre_capa}.gpkg")
 
         if os.path.exists(gpkg_path):
+            # El archivo existe pero la capa no está cargada: puede contener
+            # polígonos/notas del usuario — confirmar antes de borrar.
+            resp = QMessageBox.question(
+                self, "GPKG existente",
+                f"Ya existe un archivo de notas en disco que no está cargado en el proyecto:\n{gpkg_path}\n\n"
+                "Si lo sobrescribes se perderán los polígonos y notas guardados en él.\n\n¿Continuar?",
+                QMessageBox.Yes | QMessageBox.No, QMessageBox.No
+            )
+            if resp != QMessageBox.Yes:
+                return
             try:
                 os.remove(gpkg_path)
             except Exception as e:
@@ -2224,7 +2234,7 @@ class ExportadorRedesDockWidget(QDockWidget):
             QMessageBox.warning(self, "Sin datos", "No se encontraron capas de redes en los grupos Potable y Saneamiento.")
             return
 
-        margen = (0, 5, 10)[min(self.cmb_buffer_muni.currentIndex(), 2)]
+        margen = (0, 5, 10)[max(0, min(self.cmb_buffer_muni.currentIndex(), 2))]
         self.settings.setValue("PluginExportador/buffer_muni", self.cmb_buffer_muni.currentIndex())
 
         rect = QgsRectangle(
@@ -2337,6 +2347,9 @@ class ExportadorRedesDockWidget(QDockWidget):
             options.layerName = nombre_capa
             options.actionOnExistingFile = QgsVectorFileWriter.CreateOrOverwriteFile
             options.fileEncoding = "UTF-8"
+            if driver == "KML":
+                # KML exige coordenadas geográficas WGS84; el lienzo suele estar proyectado
+                options.destinationCrs = QgsCoordinateReferenceSystem("EPSG:4326")
 
             res = QgsVectorFileWriter.writeAsVectorFormatV3(capa_export, out_path, transform_context, options)
             if isinstance(res, tuple):

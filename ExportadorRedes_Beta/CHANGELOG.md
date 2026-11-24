@@ -9,6 +9,16 @@ Versionado según [SemVer](https://semver.org/lang/es/).
 
 ---
 
+## [0.17.56] — 2026-11-23 — BETA
+
+### Corregido
+
+- **KML del polígono CNIG a WGS84**: la exportación a KML ahora fija `destinationCrs = EPSG:4326` explícitamente (el KML exige coordenadas geográficas; el GPKG sigue en el CRS del proyecto).
+- **Margen del buffer**: `currentIndex() = -1` (combo sin selección) ya no resuelve a 10 m por indexación negativa — cae a 0 m.
+- **Capa de notas — protección de datos**: si `Notas_<municipio>.gpkg` existe en disco pero la capa no está cargada en el proyecto, ahora pide confirmación antes de sobrescribir (antes borraba polígonos/notas guardados sin avisar).
+
+---
+
 ## [0.17.55] — 2026-11-23 — BETA
 
 ### Cambiado

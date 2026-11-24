@@ -1,9 +1,10 @@
 [general]
-name=Exportador de Redes Pro (Beta 0.17.55)
+name=Exportador de Redes Pro (Beta 0.17.56)
 qgisMinimumVersion=3.30
 description=Prepara el proyecto, genera cuadrículas y exporta planos (PNG, JPG y PDF) de Abastecimiento y Saneamiento de forma automática.
-version=0.17.55
+version=0.17.56
 changelog=
+    0.17.56 - BETA. Fixes de robustez: KML del polígono CNIG exportado explícitamente a EPSG:4326 (WGS84); margen del buffer con índice -1 ya no produce 10 m por defecto; "Preparar Archivo Base (Notas)" pide confirmación antes de borrar un GPKG de notas existente no cargado (evita pérdida de polígonos guardados).
     0.17.55 - BETA. Capa de notas rediseñada: 'Notas_<municipio>' como GPKG persistente en la carpeta del proyecto (raíz del índice de capas, editable, campos id + Notas[260]), estilo QML_NOTAS; la detección de duplicados usa el prefijo 'notas_<municipio>' para respetar renombres manuales.
     0.17.54 - BETA. Polígono CNIG: se elimina la exportación a shapefile; solo se generan .gpkg (capa persistente) y .kml en PDFs_Exportacion.
     0.17.53 - BETA. Polígono CNIG ahora sigue el flujo de RecortesPDF: guarda <municipio>_CNIG.gpkg y carga la capa persistente en el proyecto (ya no es temporal), aplica estilo municipio_cnig.qml propio si existe, o recortes.qml sin etiquetas como fallback, y exporta .kml.
