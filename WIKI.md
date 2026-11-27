@@ -75,13 +75,18 @@ ExportadorRedes_Beta/
 
 ### ⚠️ Notas técnicas conocidas
 
-- `STYLES_WS` / `STYLES_UD` apuntan a rutas absolutas `F:\Tarragona\...` — **hardcodeadas a propósito**: el plugin se ejecuta en un equipo remoto donde los proyectos viven en esa ruta (los `.qgz` se distribuyen por Google Drive). Además `estilos/222_s.qml` referencia CSVs de virtualización en `F:/Tarragona/...`.
-- La versión vive solo en `VERSION` (`__init__.py`); `exportador_plugin.py` la importa y la usa en títulos de UI. Para bump: `metadata.txt` (`version=` + `changelog=` + `name=`) + `VERSION` + entrada en `CHANGELOG.md`.
+- `STYLES_WS` / `STYLES_UD` apuntan a rutas absolutas `F:\Tarragona\...` — **hardcodeadas a propósito**: el plugin se ejecuta en un equipo remoto donde los proyectos viven en esa ruta (los `.qgz` se
+  distribuyen por Google Drive). Además `estilos/222_s.qml` referencia CSVs de virtualización en `F:/Tarragona/...`.
+- La versión vive solo en `VERSION` (`__init__.py`); `exportador_plugin.py` la importa y la usa en títulos de UI. Para bump: `metadata.txt` (`version=` + `changelog=` + `name=`) + `VERSION` + entrada
+  en `CHANGELOG.md`.
 - `metadata.txt` tiene email/tracker/repository reales (repo: `angellrnzo/al_qgis_plugins`).
 - `log_message()` escribe en el panel del plugin **y** en `QgsMessageLog` (etiqueta `ExportadorRedes`) → visible en *Ver → Paneles → Mensajes de Log* para depurar en remoto.
-- `bloquear_ui_exportacion()` descubre los controles por `findChildren` en `tab_exportador` (excluye `btn_stop` y `btn_toggle_modulos`); `cmb_municipio`/`cmb_idioma_feder` conservan su lógica de habilitación condicional.
-- Las capas ocultadas por keyword (`AUX_KEYWORDS`/`MDT_KEYWORDS`) generan **un único WARNING resumen** con el total y hasta 10 nombres (antes un WARNING por capa). El acordeón "Módulos de Exportación" arranca plegado.
-- `get_grupo_raiz()` solo reconoce `Potable`/`Saneamiento`/`RecortesPDF` como **grupos de primer nivel** del árbol (fix 0.17.50: subgrupos anidados con nombre parecido ya no mantienen visible su contenido).
+- `bloquear_ui_exportacion()` descubre los controles por `findChildren` en `tab_exportador` (excluye `btn_stop` y `btn_toggle_modulos`); `cmb_municipio`/`cmb_idioma_feder` conservan su lógica de
+  habilitación condicional.
+- Las capas ocultadas por keyword (`AUX_KEYWORDS`/`MDT_KEYWORDS`) generan **un único WARNING resumen** con el total y hasta 10 nombres (antes un WARNING por capa). El acordeón "Módulos de Exportación"
+  arranca plegado.
+- `get_grupo_raiz()` solo reconoce `Potable`/`Saneamiento`/`RecortesPDF` como **grupos de primer nivel** del árbol (fix 0.17.50: subgrupos anidados con nombre parecido ya no mantienen visible su
+  contenido).
 
 ---
 
@@ -91,7 +96,8 @@ ExportadorRedes_Beta/
 
 Plugin mínimo que abre la tabla de atributos de la capa activa en el **panel lateral** como `QDockWidget` acoplado a la derecha.
 
-**v1.4 — agrupación en pestañas:** si ya hay otro dock de tabla de atributos visible en el panel derecho, el nuevo se integra como **pestaña** del grupo (`tabifyDockWidget`) en lugar de apilarse. Solo tabifica con docks que tengan capa asociada — docks sin capa (p. ej. el Exportador, que gestiona el suyo en `run()`) quedan como docks independientes salvo arrastre manual.
+**v1.4 — agrupación en pestañas:** si ya hay otro dock de tabla de atributos visible en el panel derecho, el nuevo se integra como **pestaña** del grupo (`tabifyDockWidget`) en lugar de apilarse. Solo
+tabifica con docks que tengan capa asociada — docks sin capa (p. ej. el Exportador, que gestiona el suyo en `run()`) quedan como docks independientes salvo arrastre manual.
 
 ```text
 tabla_lateral/
@@ -102,7 +108,9 @@ tabla_lateral/
 └── README.md      # Doc del plugin
 ```
 
-**Comportamiento:** `ejecutar()` obtiene `iface.activeLayer()`, valida `isValid()` + `QgsMapLayerType.VectorLayer`, llama `iface.showAttributeTable(capa)` y re-acopla el `QDockWidget` resultante a `Qt.RightDockWidgetArea`. `_buscar_dock_tabla()` localiza el dock por `layer().id()` (robusto ante renombrados y títulos localizados) con fallback a coincidencia por título. Sin capa válida → `messageBar().pushWarning`. La `QAction` lleva `icon.svg` en toolbar.
+**Comportamiento:** `ejecutar()` obtiene `iface.activeLayer()`, valida `isValid()` + `QgsMapLayerType.VectorLayer`, llama `iface.showAttributeTable(capa)` y re-acopla el `QDockWidget` resultante a
+`Qt.RightDockWidgetArea`. `_buscar_dock_tabla()` localiza el dock por `layer().id()` (robusto ante renombrados y títulos localizados) con fallback a coincidencia por título. Sin capa válida →
+`messageBar().pushWarning`. La `QAction` lleva `icon.svg` en toolbar.
 
 **Atajos:** `Alt+T` (registrado vía `registerMainWindowAction`).
 
@@ -151,7 +159,9 @@ powershell -File ..\Tools\package-plugin.ps1 -PluginName "ExportadorRedes_Beta"
 ..\Tools\package-plugin.bat
 ```
 
-**Salida:** `al_qgis_plugins/dist/<Plugin>-v<X.Y.Z>.zip` — el script lee `version=` de `metadata.txt` y lo coloca **al final** del nombre (sin timestamp; se sobrescribe al regenerar la misma versión). El zip contiene la **carpeta del plugin como raíz** (`<Plugin>/metadata.txt`, …) — QGIS la exige para *Install from ZIP*; un zip con archivos sueltos en raíz falla con "No root folder was found inside".
+**Salida:** `al_qgis_plugins/dist/<Plugin>-v<X.Y.Z>.zip` — el script lee `version=` de `metadata.txt` y lo coloca **al final** del nombre (sin timestamp; se sobrescribe al regenerar la misma versión).
+El zip contiene la **carpeta del plugin como raíz** (`<Plugin>/metadata.txt`, …) — QGIS la exige para *Install from ZIP*; un zip con archivos sueltos en raíz falla con "No root folder was found
+inside".
 
 **Convención de versionado:**
 
@@ -162,7 +172,8 @@ powershell -File ..\Tools\package-plugin.ps1 -PluginName "ExportadorRedes_Beta"
 
 `dist/` está cubierto por `.gitignore`; los zips no se versionan.
 
-**Rotación de backups:** el script conserva automáticamente los **3 builds más recientes por plugin** en `dist/`. Al generar un nuevo zip, el más viejo de ese plugin se borra solo (mensaje amarillo en consola).
+**Rotación de backups:** el script conserva automáticamente los **3 builds más recientes por plugin** en `dist/`. Al generar un nuevo zip, el más viejo de ese plugin se borra solo (mensaje amarillo en
+consola).
 
 ---
 
