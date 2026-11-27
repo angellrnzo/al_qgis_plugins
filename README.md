@@ -12,7 +12,9 @@ Cada plugin es una **carpeta sin comprimir** en la raíz del repo. Los `.zip` de
 | :--- | :--- | :--- |
 | [`ExportadorRedes_Beta/`](ExportadorRedes_Beta/) | ✅ Plugin QGIS | Exportador automático de planos de redes (Abastecimiento y Saneamiento): preparación de proyecto, cuadrículas y exportación PNG/JPG/PDF con maquetación FEDER. **v0.17.51** |
 | [`tabla_lateral/`](tabla_lateral/) | ✅ Plugin QGIS | Panel lateral con la tabla de atributos de la capa activa — se agrupa como pestaña con otros docks (icono SVG, atajo `Alt+T`). **v1.4** |
+| [`volcador_tuberias/`](volcador_tuberias/) | ✅ Plugin QGIS (terceros) | Volcado de atributos madre→tramos + girar sentido + pozo ACA→231 + lote + simbología (Marisa Pardo/Dielmo). Versión modificada **v1.4.2** con iconos propios; fuente original en `analisis/`. Solo saneamiento excepto `girar` |
 | [`logos_tarragona/`](logos_tarragona/) | 🛠️ Tooling | Script interactivo único (`logos_tarragona.py`) del pipeline de escudos municipales + assets comprimidos en `logos_tarragona_assets.zip` (351 archivos) |
+| [`analisis/`](analisis/) | 📚 Referencia | Análisis de plugins de terceros (fuente original + previews). **No empaquetar** — ver `analisis/README.md` |
 | `dist/` | 📦 Output | `.zip` de test generados — **no commitear** |
 
 ---

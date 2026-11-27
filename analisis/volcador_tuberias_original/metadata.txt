@@ -1,0 +1,114 @@
+[general]
+name=Volcador Tuberias a Trams
+qgisMinimumVersion=3.16
+description=Vuelca DIAMETRE, MATERIAL, LAS DOS PROFUNDIDADES y el TIPO DE RED a los trams 211 seleccionados, con un solo clic. Si una punta muere en un embornal, coge su medida. Solo lee de la capa madre Tuberias.
+about=Lote SI-014/23 Tarragona. Seleccionas uno o varios trams en la capa 211_Trams_Sanejament, activas la herramienta y haces clic sobre una tuberia de la capa madre. Se vuelcan DIAMETRE y MATERIAL (y los que configures), y ademas, de una sola pasada, LAS DOS profundidades de cada tram: la herramienta busca sola las flechas que arrancan en sus dos extremos y pone cada una en prof_colector1 y prof_colector2. Si un tram se queda a medias, lo dice.
+version=1.24.1
+author=Marisa Pardo Villar / Dielmo
+email=marisa@dielmo.com
+tracker=
+repository=
+homepage=
+category=Plugins
+icon=icon.png
+experimental=False
+deprecated=False
+tags=tarragona, giswater, qfield, trams, tuberias, atributos
+
+changelog=
+    1.24.1 - Los botones de volcar tuberias y de girar flechas se desmarcan solos al elegir otra herramienta, como el de pous en alta.
+    1.24.0 - Nuevo boton "Volcar pou de la ACA a la 231 (pous en alta)".
+        Con un 222 seleccionado, clic sobre el pou de la capa Pous de la ACA:
+        crea el 231 en la posicion del 222 (o lo completa si ya hay uno).
+        De la ACA: POU_ID, N_POU, COD_SIST, TIP_POU. Del 222: PROF, Z_T,
+        Z_FONS y CON_BAIXA (NUM_ESC). No deja repetir un POU_ID. Probado
+        rehaciendo los 9 de Pradell: identicos a los entregados. (27/10/2026)
+    1.23.8 - El interruptor "No pisar lo que ya tenga valor" se recuerda.
+        Volvia a marcarse en cada arranque de QGIS, asi que habia que
+        desmarcarlo otra vez cada manana para seguir trabajando igual que el
+        dia anterior (Marisa, 06/10/2026). Ahora se guarda en los ajustes de
+        QGIS y el menu arranca como se dejo.
+    1.23.7 - El volcador de pulsar decia que escribia cosas que no escribia.
+        El mensaje se armaba con los valores CALCULADOS, sin mirar si se
+        habian llegado a escribir. Con "No pisar lo que ya tenga valor"
+        activado --que es lo normal-- anunciaba "DIAMETRE=400" mientras en
+        la tabla seguia el 450 de antes. El mensaje contradecia al dato, y
+        uno se fia del mensaje (Marisa, 06/10/2026).
+        Ahora solo se anuncia lo escrito de verdad, y el aviso de lo
+        respetado sale como advertencia explicando donde esta el
+        interruptor para pisarlo.
+    1.23.6 - Al pisar, el volcador CORRIGE el tram, no solo rellena.
+        Cuando el DIAMETRE o el MATERIAL del tram no cuadraban con la flecha
+        de la madre, el tram se mandaba a dudosos y no se tocaba: con un
+        diametro mal, repetir el volcado no arreglaba nada. Ahora, en modo
+        pisar, la flecha manda y el tram se corrige. Cada cambio sale en el
+        resumen.
+        Y se crean las TRES columnas de trabajo si faltan (prof_colector1,
+        prof_colector2, prof_interp), no solo prof_interp.
+        Pedido por Marisa (06/10/2026): "si le vuelvo a dar al volcador, que
+        me pise todo lo que no coincida".
+    1.23.5 - La pasada en seco avisa de que falta la columna prof_interp.
+        Se creaba solo al volcar de verdad --en seco no se toca nada, ni la
+        estructura-- pero no se decia, asi que se pasaba en seco, no aparecia
+        la columna y parecia que la herramienta no hacia lo que dice
+        (Marisa, 06/10/2026).
+    1.23.4 - Crea la columna prof_interp si el municipio no la tiene.
+        El volcador marca ahi cuales vienen de interpolacion, pero si la
+        columna no existia hacia el trabajo y NO marcaba nada, en silencio.
+        Se descubre tarde, cuando alguien pregunta de donde sale un valor.
+        Torroja no la tenia y Alcover si (Marisa, 05/10/2026).
+    1.23.3 - El dialogo del volcado en lote, con botones que dicen lo que hacen.
+        Era un Si/No con 'SI = hacerlo de verdad' y 'NO = pasada en seco'
+        explicado en el cuerpo del mensaje. Quien queria la prueba pulsaba
+        Si --"si, hazla"-- y escribia en firme. Le paso a Marisa el
+        05/10/2026 probando el modo pisar. Ahora los botones son
+        "Pasada en seco" (por defecto), "Volcar de verdad" y "Cancelar".
+    1.23.2 - Modo PISAR en el volcado en lote.
+        Hasta ahora lo que ya tenia valor se respetaba siempre, y eso esta
+        bien cuando el valor lo puso una persona. Pero cuando lo dejo mal una
+        pasada anterior del propio volcador, repetirla era inutil: habia que
+        corregir uno por uno a mano (Alcover, 05/10/2026, revisando el
+        municipio). Ahora, al volcar de verdad, pregunta si pisar lo ya
+        escrito; por defecto NO. El resumen dice cuantas se han pisado.
+        Avisa de que las correcciones hechas a mano se pierden y recomienda
+        pasar antes en seco con la comparacion.
+    1.23.1 - La simbologia de inventario, tambien en la barra.
+        Estaba solo en Complementos > Tarragona y Marisa la busco dos veces
+        entre los botones sin dar con ella. Se usa cada vez que se abre un
+        municipio recien unido, asi que va a mano.
+    1.23.0 - Boton nuevo: PONER LA SIMBOLOGIA DE INVENTARIO. Al unir un municipio las capas salen con el estilo por defecto de QGIS -- todo del mismo color y sin flechas -- y ponerles el de trabajo es repetir diez veces el mismo paso cada vez que se abre un proyecto. Pedido por Marisa el 25/09/2026, con los estilos elegidos por ella de F:/Tarragona/01_Preparacion_previa/Estilos: 111_v5, 124_v2, 125_v2, 211_v4, 222_v4, 224, 225, 231_v2, Tuberias_v6 para la capa madre y topografia para Ref_Elementos. OJO, NO son los estilos de la entrega: los de `simbologia_entrega` son los que ve el cliente y estos son los de trabajo, que ensenan lo que hace falta para revisar (el sentido de las flechas, la calidad del GPS de cada referencia). Son dos juegos distintos a proposito. La capa se reconoce por el PRINCIPIO del nombre, que es lo unico estable: el mismo municipio puede traer `211_Trams_Sanejament` o `211_Trams_Sanejament_v2` (2026-09-25).
+    1.1.1 - Si el diametro o el material no vienen en su columna, se buscan en el COMENTARIO.
+    Marisa: 'a veces no hay diametro y material porque debe ser que no esta en el dominio y los
+    chicos lo escriben en la columna comentario'. Mirados los comentarios reales de los 82
+    municipios, escriben DN100, DN 850, DN220. ESCOMBRO, TUBO DEFORMADO. DN 180, DN300
+    HORMIGON, DN50 PE, PE de 140, 30 mm. Solo se lee lo inequivoco y NUNCA se escribe el texto
+    del comentario en el campo: ahi va un numero o un material del dominio, y si no se ha podido
+    sacar se deja el hueco y se avisa con el comentario delante para meterlo a mano. Dos trampas
+    esquivadas: 'NO SE PUEDE TOMAR DN' lleva DN pero sin numero detras, y 'NO TUBO, GALERIA
+    350x300' es una SECCION RECTANGULAR -- coger el 350 seria inventarse un tubo redondo que no
+    existe, asi que se rechaza diciendolo. Cuando el comentario dice que no se pudo medir
+    (ESCOMBRO, TUBO ROTO, NO ES POSIBLE MEDICION) se deja vacio y se dice, que eso tambien es
+    informacion. Medido sobre los 82: de 363 huecos de diametro recupera 152, en 66 el
+    comentario dice que no se pudo medir y 15 son secciones rectangulares (2026-09-05).
+    1.1.0 - Los codigos se resuelven contra el CSV DE DOMINIO, no contra el desplegable de la
+    capa. La madre guarda Material y Diametro como CODIGOS, y antes se traducian con la
+    configuracion del widget en QGIS; cuando esa configuracion no esta -- proyecto montado de
+    otra forma, capa de dominio sin cargar -- la traduccion no ocurria, NO SALTABA NINGUN ERROR
+    y se escribia el codigo crudo en el 211. Ese era el 'algunos materiales fallaban' que
+    reporto Marisa, y por eso fallaba de forma intermitente. El CSV esta al lado del GPKG y no
+    depende de como este montado el proyecto, asi que manda el; el camino viejo se queda de
+    reserva y ahora SE DICE cuando se ha tenido que usar. Se detecta el separador, que no todos
+    los CSV usan coma. Y se tiene en cuenta la RED: el mismo numero significa cosas distintas en
+    potable y en saneamiento (el 2 es Polietileno en potable y no existe en saneamiento), la
+    madre lleva las dos, y el volcador ignoraba la columna Red por completo; si se pincha una
+    tuberia de potable estando en el 211, ahora avisa. Medido: material resuelto en el 99% de
+    4.200 flechas de Alcover, Vilallonga y Prat de Comte, y diametro entre el 92 y el 99%.
+    NOVEDAD: se vuelca tambien la PROFUNDIDAD de campo, a prof_colector1 (entrada) o
+    prof_colector2 (salida) segun a que extremo del tram corresponda. Y eso lo decide LA
+    GEOMETRIA, no el 'Aguas Arriba / Aguas Abajo': la flecha se dibuja en el pozo donde esta el
+    operario y sale hacia fuera, asi que su arranque cae sobre el extremo al que se refiere lo
+    que anoto -- medido sobre 4.300 flechas, el arranque queda a mediana 0,00 m de un extremo de
+    tram y el final a la longitud de la flecha. Con eso no hay que revisar orientaciones a mano,
+    que es lo que hubo que hacer en Castello d'Empuries. Si la flecha no arranca en ningun
+    extremo (8-12% de los casos) no se escribe nada y se dice cuales. Y una profundidad fuera de
+    0-10 m se rechaza: en las madres hay un 1447 y un 109 (2026-09-05).
