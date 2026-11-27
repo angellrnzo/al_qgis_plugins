@@ -958,7 +958,7 @@ class ExportadorRedesDockWidget(QDockWidget):
         lay_estilos.addWidget(self.btn_restore_original_qml)
 
         self.btn_preparar_notas = QPushButton("🗂️ Preparar Archivo Base (Notas)")
-        self.btn_preparar_notas.setToolTip("Crea la capa persistente 'Notas_<municipio>' (GPKG en la carpeta del proyecto) en la raíz del índice de capas.")
+        self.btn_preparar_notas.setToolTip("Verifica/crea los grupos 'FieldPreparer > Revisados' y crea la capa persistente 'Notas_<municipio>' (GPKG en la carpeta del proyecto) en la raíz del índice de capas.")
         self.btn_preparar_notas.setStyleSheet(estilo_btn_sec)
         self.btn_preparar_notas.clicked.connect(self.preparar_archivo_notas)
         lay_estilos.addWidget(self.btn_preparar_notas)
@@ -1020,6 +1020,18 @@ class ExportadorRedesDockWidget(QDockWidget):
         nombre_capa = f"Notas_{muni}"
         crs_canvas = self.iface.mapCanvas().mapSettings().destinationCrs()
 
+        # Grupos FieldPreparer > Revisados: se crean siempre, existan o no
+        # notas — son la estructura de trabajo de campo.
+        root = QgsProject.instance().layerTreeRoot()
+        grupo_fp = root.findGroup('FieldPreparer')
+        if grupo_fp is None:
+            grupo_fp = QgsLayerTreeGroup('FieldPreparer')
+            root.insertChildNode(0, grupo_fp)
+        grupo_rev = grupo_fp.findGroup('Revisados')
+        if grupo_rev is None:
+            grupo_rev = QgsLayerTreeGroup('Revisados')
+            grupo_fp.insertChildNode(0, grupo_rev)
+
         # ¿Ya existe una capa de notas? Se detecta por el prefijo
         # 'Notas_<municipio>' (el usuario puede renombrarla añadiendo
         # sufijos a mano; no se toca).
@@ -1031,9 +1043,13 @@ class ExportadorRedesDockWidget(QDockWidget):
                 break
         if existente:
             self.log_message(f"Ya existe una capa de notas: '{existente.name()}'. No se crea ni se modifica.", "INFO")
+            self.log_message("Grupos 'FieldPreparer > Revisados' verificados/creados.", "INFO")
+            self.iface.mapCanvas().refreshAllLayers()
             QMessageBox.information(
                 self, "Ya existe",
-                f"Ya hay una capa de notas en el proyecto:\n'{existente.name()}'\n\nNo se ha creado ni modificado nada."
+                f"Ya hay una capa de notas en el proyecto:\n'{existente.name()}'\n\n"
+                "No se ha creado ni modificado la capa de notas.\n"
+                "Se ha verificado/creado la estructura 'FieldPreparer > Revisados'."
             )
             return
 
@@ -1101,13 +1117,13 @@ class ExportadorRedesDockWidget(QDockWidget):
                 if not ok_st and err_st:
                     self.log_message(f"Aviso aplicando estilo QML_NOTAS: {err_st}", "WARNING")
             QgsProject.instance().addMapLayer(capa_notas)
-            self.log_message(f"Capa de notas creada y cargada: {os.path.basename(gpkg_path)}", "SUCCESS")
+            self.log_message(f"Capa de notas creada y cargada en la raíz del proyecto: {os.path.basename(gpkg_path)}", "SUCCESS")
         else:
             self.log_message("Error al cargar la capa de notas desde el GPKG.", "WARNING")
             QgsProject.instance().addMapLayer(capa_tmp)
 
         self.iface.mapCanvas().refreshAllLayers()
-        QMessageBox.information(self, "Éxito", f"Capa '{nombre_capa}' creada y cargada en la raíz del proyecto.\nArchivo: {gpkg_path}")
+        QMessageBox.information(self, "Éxito", f"Capa '{nombre_capa}' creada en la raíz del proyecto.\nArchivo: {gpkg_path}")
 
     def preparar_proyecto_completo(self):
         backup_existe = any(v is not None for v in self.estilos_originales.values()) or len(self._visibilidad_backup) > 0

@@ -9,6 +9,19 @@ Versionado según [SemVer](https://semver.org/lang/es/).
 
 ---
 
+## [0.17.57] — 2026-11-27 — BETA
+
+### Corregido
+
+- **"Preparar Archivo Base (Notas)" — grupos restaurados**: vuelve a
+  verificar/crear la estructura `FieldPreparer > Revisados` en el árbol de
+  capas en cada ejecución, existan o no las notas (el rediseño de la v0.17.55
+  los había eliminado). Si la capa `Notas_<municipio>` ya existe se salta su
+  creación pero los grupos quedan creados/verificados; la capa de notas sigue
+  cargándose en la **raíz** del índice de capas, fuera de los grupos.
+
+---
+
 ## [0.17.56] — 2026-11-23 — BETA
 
 ### Corregido

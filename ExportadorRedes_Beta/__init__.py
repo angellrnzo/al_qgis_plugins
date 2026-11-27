@@ -5,7 +5,7 @@ Plugin QGIS para automatizar la preparación, recorte y exportación
 de planos de Abastecimiento y Saneamiento.
 """
 
-VERSION = '0.17.56'
+VERSION = '0.17.57'
 
 
 def classFactory(iface):
